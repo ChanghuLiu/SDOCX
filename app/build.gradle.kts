@@ -1,6 +1,21 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+}
+
+private val externalSigningFile = project.file(System.getProperty("user.home"))
+    .resolve(".config/notes-escape/signing.properties")
+private val externalSigningProperties = Properties().also { properties ->
+    if (externalSigningFile.isFile) {
+        FileInputStream(externalSigningFile).use { properties.load(it) }
+        val required = listOf("storeFile", "keyAlias", "storePassword", "keyPassword")
+        require(required.all { !properties.getProperty(it).isNullOrBlank() }) {
+            "External release signing configuration is incomplete"
+        }
+    }
 }
 
 android {
@@ -21,9 +36,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (externalSigningFile.isFile) {
+            create("release") {
+                storeFile = file(externalSigningProperties.getProperty("storeFile"))
+                storePassword = externalSigningProperties.getProperty("storePassword")
+                keyAlias = externalSigningProperties.getProperty("keyAlias")
+                keyPassword = externalSigningProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isDebuggable = false
+            signingConfig = signingConfigs.findByName("release")
             optimization {
                 // V1 keeps optimization off until release-size and mapping policy are finalized.
                 enable = false
