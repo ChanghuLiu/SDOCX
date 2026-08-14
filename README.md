@@ -10,3 +10,7 @@ The RC1 Android flow uses SAF for files, recursively discovers `.sdocx` files
 from selected folders, caches one source at a time with bounded streaming, and
 streams original files and media into the ZIP. The next validation step is the
 five-note Samsung device plan in [docs/REAL_DEVICE_TEST_PLAN.md](docs/REAL_DEVICE_TEST_PLAN.md).
+
+Transient Samsung Notes for Windows black-box results are recorded in
+[docs/WINDOWS_SAMPLE_COMPATIBILITY.md](docs/WINDOWS_SAMPLE_COMPATIBILITY.md).
+They are not a substitute for Android-device validation.

@@ -4,6 +4,33 @@ SDOCX is treated as a ZIP. Archive entry names are normalized and checked for tr
 
 The binary page path follows the MIT reference layout: little-endian note metadata, `pageIdInfo.dat`, EOF/EOFX media registry entries, page layer/object records, common object headers, and Samsung 5.5 fixed-point delta stroke payloads. Typed text and later rich-text span variants are parsed conservatively; unsupported objects remain warnings/placeholders rather than guessed content.
 
+## Independently validated Windows text records
+
+The transient Samsung Notes for Windows black-box corpus independently confirmed
+that a `note.note` text record can be recognized by a bounded length prefix,
+UTF-16LE code-unit count, text payload, span vector, and paragraph vector. Span
+records carry a bounded data size, type, UTF-16 range, interval value, and
+property bytes. Paragraph records carry a bounded data size, paragraph type,
+paragraph-index range, and property bytes.
+
+The observed paragraph codes are interpreted conservatively: code `2` is
+indent level, code `5` is list metadata, and code `6` is the ordinary parsing
+state. Within code `5`, values `4`, `8`, and `2` correspond to numbered,
+bullet, and checkbox records in the controlled corpus. Numbering values and
+checkbox state are read from the record properties; checked items may also
+carry an enabled strikethrough span. A zero list code is treated as default
+formatting rather than guessed content.
+
+Span types `5`, `6`, `7`, and `20` are mapped to bold, italic, underline, and
+strikethrough only when their property flag is enabled. This matters because
+Samsung serializes both enabled and disabled style ranges. Arbitrary UTF-16
+occurrences are not emitted as user text. Records that fail the structural
+bounds/confidence checks are ignored with the surrounding note preserved and
+are not converted into binary-looking Markdown.
+
+These observations are implementation notes from our raw-binary inspection
+and controlled black-box results; no GPL parser implementation was used.
+
 ## RC1 memory and source lifecycle
 
 The Android layer never materializes a SAF source into a `ByteArray`. It copies

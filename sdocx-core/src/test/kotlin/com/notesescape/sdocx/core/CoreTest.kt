@@ -19,6 +19,44 @@ class CoreTest {
 
     @Test fun mediaRegistrySupportsBothEndings() { listOf(false, true).forEach { newer -> val hash = "a".repeat(64); val entry = java.io.ByteArrayOutputStream().apply { writeIntLe(0); writeShortLe(4); write("file".toByteArray(Charsets.UTF_16LE)); write(hash.toByteArray()); writeShortLe(0); writeLongLe(0L); if (newer) write(1) }.toByteArray(); val bytes = java.io.ByteArrayOutputStream().apply { if (newer) writeIntLe(4000); writeShortLe(1); if (newer) writeIntLe(entry.size); write(entry); write(if (newer) "EOFX".toByteArray() else "EOF".toByteArray()) }.toByteArray(); val warnings = mutableListOf<ParseWarning>(); val result = MediaRegistryParser.parse(bytes, warnings); assertEquals(1, result.size); assertEquals("file", result.single().filename); assertTrue(warnings.isEmpty()) } }
 
+    @Test fun structuredTextRecordPreservesStylesListsAndCheckboxState() {
+        val text = "bold\nchecked"
+        val body = java.io.ByteArrayOutputStream().apply {
+            writeIntLe(text.length)
+            write(text.toByteArray(Charsets.UTF_16LE))
+            writeIntLe(2)
+            writeSpan(20, 5, 0, 4, enabled = true)
+            writeSpan(20, 20, 5, 12, enabled = true)
+            writeIntLe(2)
+            writeParagraph(20, 0, 0, 1)
+            writeParagraph(28, 5, 1, 2, first = 2, second = 1)
+        }.toByteArray()
+        val note = java.io.ByteArrayOutputStream().apply {
+            writeIntLe(0); write(0); writeIntLe(0); write(0); writeIntLe(0); writeIntLe(4000)
+            writeShortLe(0); writeIntLe(0); writeLongLe(0); writeLongLe(0)
+            writeIntLe(1000); writeIntLe(1000); writeIntLe(0); writeIntLe(0); writeIntLe(0)
+            writeIntLe(0); writeIntLe(body.size); write(body)
+        }.toByteArray()
+        val parsed = NoteDocParser.parse(note)
+        assertEquals(text, parsed.bodyText)
+        assertEquals(2, parsed.topLevelElements.size)
+        assertTrue(parsed.topLevelElements[0].spans.single().bold)
+        assertEquals("checkbox", parsed.topLevelElements[1].paragraph.listKind)
+        assertEquals(true, parsed.topLevelElements[1].paragraph.checked)
+        assertTrue(parsed.topLevelElements[1].spans.single().strike)
+    }
+
+    private fun java.io.ByteArrayOutputStream.writeSpan(dataSize: Int, type: Int, start: Int, end: Int, enabled: Boolean = false) {
+        writeShortLe(dataSize); writeIntLe(type); writeIntLe(start); writeIntLe(end); writeIntLe(1)
+        if (enabled) writeIntLe(1) else writeIntLe(0)
+        repeat(dataSize - 20) { write(0) }
+    }
+
+    private fun java.io.ByteArrayOutputStream.writeParagraph(dataSize: Int, type: Int, start: Int, end: Int, first: Int = 0, second: Int = 0) {
+        writeShortLe(dataSize); writeIntLe(type); writeIntLe(start); writeIntLe(end); writeIntLe(first); writeIntLe(second)
+        repeat(dataSize - 12 - 8) { write(0) }
+    }
+
     private fun java.io.ByteArrayOutputStream.writeShortLe(value: Int) { write(value and 255); write(value ushr 8 and 255) }
     private fun java.io.ByteArrayOutputStream.writeIntLe(value: Int) { write(value and 255); write(value ushr 8 and 255); write(value ushr 16 and 255); write(value ushr 24 and 255) }
     private fun java.io.ByteArrayOutputStream.writeLongLe(value: Long) { repeat(8) { write((value ushr (it * 8)).toInt() and 255) } }

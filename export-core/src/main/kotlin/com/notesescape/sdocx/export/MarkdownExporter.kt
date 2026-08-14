@@ -14,23 +14,34 @@ object MarkdownExporter {
         appendLine("source: \"Samsung Notes\""); appendLine("source_format: \"sdocx\""); result.metadata.appVersion?.let { appendLine("source_app_version: \"${yaml(it)}\"") }
         result.metadata.formatVersion?.let { appendLine("source_format_version: $it") }; appendLine("direction: \"${result.metadata.direction}\""); appendLine("---"); appendLine()
         val top = result.topLevelText?.trim().takeUnless { it.isNullOrBlank() }
-        top?.let { appendLine(it); appendLine() }
+        if (result.topLevelElements.isNotEmpty()) {
+            result.topLevelElements.forEach { appendLine(formatText(it, format)) }
+            appendLine()
+        } else {
+            top?.let { appendLine(it); appendLine() }
+        }
+        val emittedHandwritingPages = mutableSetOf<Int>()
         result.pages.forEach { page -> page.elements.sortedWith(compareBy<PageElement> { it.y }.thenBy { it.x }.thenBy { it.sourceOrder }).forEach { element ->
             if (element is RichTextElement && top != null && normalize(element.text) == normalize(top)) return@forEach
             when (element) {
                 is RichTextElement -> appendLine(formatText(element, format))
                 is ImageElement -> appendLine("![[assets/${SafeNames.file(result.metadata.title)}/${SafeNames.file(element.bindId)}]]")
                 is AttachmentElement -> appendLine("[Attachment](assets/attachments/${SafeNames.file(element.bindId)})")
-                is HandwritingElement -> appendLine("![[assets/${SafeNames.file(result.metadata.title)}/handwriting_page_${page.number.toString().padStart(2, '0')}.svg]]")
+                is HandwritingElement -> if (emittedHandwritingPages.add(page.number)) appendLine("![[assets/${SafeNames.file(result.metadata.title)}/handwriting_page_${page.number.toString().padStart(2, '0')}.svg]]")
                 is UnknownElement -> appendLine("<!-- Unsupported object ${element.kind}; see migration report -->")
             }
         }; appendLine() }
     }
     private fun formatText(e: RichTextElement, format: ExportFormat): String {
         val content = if (e.spans.isEmpty()) escapePlain(e.text) else e.spans.joinToString("") { renderSpan(it, format) }
-        val listed = when (e.paragraph.listKind) { "bullet" -> "- "; "number" -> "1. "; else -> "" }
+        val indent = "  ".repeat(e.paragraph.indent.coerceIn(0, 32))
+        val listed = when (e.paragraph.listKind) {
+            "bullet" -> "- "
+            "number" -> "${e.paragraph.listNumber ?: 1}. "
+            else -> ""
+        }
         val checkbox = e.paragraph.checked?.let { if (it) "- [x] " else "- [ ] " } ?: listed
-        return checkbox + content
+        return indent + checkbox + content
     }
     private fun renderSpan(span: RichTextSpan, format: ExportFormat): String {
         var value = escapePlain(span.text)

@@ -25,6 +25,8 @@ object SdocxLimits {
     const val MAX_OBJECTS_PER_PAGE = 100_000
     const val MAX_STROKE_POINTS = 500_000
     const val MAX_OBJECT_BYTES = 8 * 1024 * 1024
+    const val MAX_TEXT_CHARS = 2_000_000
+    const val MAX_TEXT_RANGES = 100_000
 }
 object SourceNameRules {
     fun isSdocx(name: String?): Boolean = name?.endsWith(".sdocx", ignoreCase = true) == true
@@ -47,7 +49,13 @@ data class AttachmentElement(val bindId: String, override val x: Float = 0f, ove
 data class UnknownElement(val kind: Int, override val x: Float = 0f, override val y: Float = 0f, override val sourceOrder: Int = 0) : PageElement
 data class RichText(val spans: List<RichTextSpan>)
 data class RichTextSpan(val text: String, val bold: Boolean = false, val italic: Boolean = false, val underline: Boolean = false, val strike: Boolean = false, val link: String? = null)
-data class ParagraphStyle(val alignment: String? = null, val indent: Int = 0, val listKind: String? = null, val checked: Boolean? = null)
+data class ParagraphStyle(
+    val alignment: String? = null,
+    val indent: Int = 0,
+    val listKind: String? = null,
+    val checked: Boolean? = null,
+    val listNumber: Int? = null
+)
 data class Stroke(val points: List<StrokePoint>, val color: Int = 0xff000000.toInt(), val width: Float = 2f)
 data class StrokePoint(val x: Float, val y: Float, val pressure: Float = 1f)
 interface MediaContent : AutoCloseable {
@@ -75,7 +83,15 @@ data class MediaAsset(val bindId: String, val filename: String, val content: Med
 data class MediaBinding(val bindId: String, val archivePath: String, val filename: String, val hash: String? = null, val attachment: Boolean? = null)
 data class ParseWarning(val message: String, val entry: String? = null)
 enum class ParseStatus { SUCCESS, PARTIAL, LOCKED, UNSUPPORTED, CORRUPT, FAILED }
-data class ParseResult(val metadata: DocumentMetadata, val pages: List<Page>, val media: List<MediaAsset>, val warnings: List<ParseWarning>, val status: ParseStatus, val topLevelText: String? = null)
+data class ParseResult(
+    val metadata: DocumentMetadata,
+    val pages: List<Page>,
+    val media: List<MediaAsset>,
+    val warnings: List<ParseWarning>,
+    val status: ParseStatus,
+    val topLevelText: String? = null,
+    val topLevelElements: List<RichTextElement> = emptyList()
+)
 
 class BoundsException(message: String): Exception(message)
 class LittleEndianReader(private val bytes: ByteArray) {
@@ -183,14 +199,25 @@ object SdocxParser {
         val pageIds = entries.entries.firstOrNull { it.key.endsWith("pageIdInfo.dat") }?.value?.let { PageIdParser.parse(it, warnings) } ?: emptyList()
         val noteData = entries.entries.firstOrNull { it.key.endsWith("note.note") }?.value?.let { NoteDocParser.parse(it, warnings) }
         val metadata = mergeMetadata(noteData?.metadata ?: DocumentMetadata(), end)
-        if (metadata.locked) { archive.close(); return ParseResult(metadata, emptyList(), emptyList(), warnings + ParseWarning("This note is locked. Unlock it in Samsung Notes and export it again."), ParseStatus.LOCKED, noteData?.bodyText) }
+        if (metadata.locked) {
+            archive.close()
+            return ParseResult(
+                metadata,
+                emptyList(),
+                emptyList(),
+                warnings + ParseWarning("This note is locked. Unlock it in Samsung Notes and export it again."),
+                ParseStatus.LOCKED,
+                noteData?.bodyText,
+                noteData?.topLevelElements.orEmpty()
+            )
+        }
         val media = registry.mapNotNull { binding -> val actual = archive.media[binding.archivePath]?.let { binding.archivePath to it } ?: archive.media.entries.firstOrNull { it.key.substringAfterLast('/').endsWith(binding.filename) }?.let { it.key to it.value }; actual?.let { (path, content) -> MediaAsset(binding.bindId, binding.filename, content, binding.hash, binding.attachment == true, path) } ?: run { warnings += ParseWarning("Registered media is missing: ${binding.archivePath}", binding.archivePath); null } }
         val pageEntries = entries.filterKeys { it.endsWith(".page") }.toList().sortedWith(compareBy<Pair<String, ByteArray>> { pair -> pageIds.indexOfFirst { id -> pair.first.contains(id) }.let { if (it < 0) Int.MAX_VALUE else it } }.thenBy { pair -> pair.first })
         val pages = pageEntries.take(SdocxLimits.MAX_NOTE_PAGES).mapIndexed { index, (path, bytes) -> PageParser.parse(index + 1, path, bytes, warnings) }
         if (pageEntries.size > SdocxLimits.MAX_NOTE_PAGES) warnings += ParseWarning("page count exceeds ${SdocxLimits.MAX_NOTE_PAGES}; remaining pages omitted")
         if (pages.isEmpty()) warnings += ParseWarning("No page records were recognized")
         val status = if (warnings.isEmpty()) ParseStatus.SUCCESS else ParseStatus.PARTIAL
-        return ParseResult(metadata, pages, media, warnings, status, noteData?.bodyText)
+        return ParseResult(metadata, pages, media, warnings, status, noteData?.bodyText, noteData?.topLevelElements.orEmpty())
     }
     private fun mergeMetadata(note: DocumentMetadata, end: DocumentMetadata?): DocumentMetadata = if (end == null) note else note.copy(
         created = end.created ?: note.created, modified = end.modified ?: note.modified, appVersion = end.appVersion ?: note.appVersion,
@@ -199,16 +226,203 @@ object SdocxParser {
         title = note.title.takeIf { it != "Untitled" } ?: end.title)
 }
 
-data class ParsedNoteData(val metadata: DocumentMetadata, val bodyText: String?, val titleBytes: ByteArray = byteArrayOf())
+data class ParsedNoteData(
+    val metadata: DocumentMetadata,
+    val bodyText: String?,
+    val titleBytes: ByteArray = byteArrayOf(),
+    val topLevelElements: List<RichTextElement> = emptyList()
+)
+
+private data class TextSpanRecord(
+    val type: Int,
+    val start: Int,
+    val end: Int,
+    val extra: ByteArray
+)
+
+private data class ParagraphRecord(
+    val type: Int,
+    val start: Int,
+    val end: Int,
+    val extra: ByteArray
+)
+
+private data class StructuredText(
+    val text: String,
+    val spans: List<TextSpanRecord>,
+    val paragraphs: List<ParagraphRecord>
+)
+
 object NoteDocParser {
     fun parse(bytes: ByteArray, warnings: MutableList<ParseWarning> = mutableListOf()): ParsedNoteData = try {
         val r = LittleEndianReader(bytes); r.i32(); r.u8(); r.i32(); r.u8(); r.i32(); val version = r.i32(); val id = r.shortUtf16(); r.i32(); val created = timestamp(r.i64()); val modified = timestamp(r.i64()); val width = r.i32(); val height = r.i32(); r.i32(); r.i32(); r.i32()
         val titleSize = r.i32(); if (titleSize < 0 || titleSize > r.remaining || titleSize > SdocxLimits.MAX_OBJECT_BYTES) throw BoundsException("invalid title object size")
-        val titleBytes = r.bytes(titleSize); val title = extractTitle(titleBytes); val body = if (r.remaining >= 4) { val size = r.i32(); if (size in 0..r.remaining && size <= SdocxLimits.MAX_OBJECT_BYTES) decodeTextObject(r.bytes(size)) else null } else null
-        ParsedNoteData(DocumentMetadata(title.ifBlank { "Untitled" }, created, modified, formatVersion = version, width = width, height = height, noteUuid = id), body, titleBytes)
+        val titleBytes = r.bytes(titleSize); val title = extractTitle(titleBytes)
+        val structured = decodeStructuredText(bytes, title, warnings)
+        val legacyBody = if (r.remaining >= 4) {
+            val size = r.i32()
+            if (size in 0..r.remaining && size <= SdocxLimits.MAX_OBJECT_BYTES) decodeTextObject(r.bytes(size)) else null
+        } else null
+        val body = structured?.text ?: legacyBody
+        ParsedNoteData(
+            DocumentMetadata(title.ifBlank { "Untitled" }, created, modified, formatVersion = version, width = width, height = height, noteUuid = id),
+            body,
+            titleBytes,
+            structured?.let { toElements(it, warnings) }.orEmpty()
+        )
     } catch (e: Exception) { warnings += ParseWarning("note.note: ${e.message}", "note.note"); ParsedNoteData(DocumentMetadata(), null) }
     private fun extractTitle(bytes: ByteArray): String { if (bytes.size < 8) return ""; for (i in 0..bytes.size - 8) { val n = ByteBuffer.wrap(bytes, i, 4).order(ByteOrder.LITTLE_ENDIAN).int; if (n in 3..200 && i + 4 + n * 2 <= bytes.size) { val text = bytes.copyOfRange(i + 4, i + 4 + n * 2).toString(Charsets.UTF_16LE).trimEnd('\u0000'); if (text.isNotBlank() && text.all { !it.isISOControl() }) return text } }; return "" }
-    private fun decodeTextObject(bytes: ByteArray): String? = runCatching { val r = LittleEndianReader(bytes); r.longUtf16() }.getOrNull()?.takeIf { it.isNotBlank() } ?: bytes.toString(Charsets.UTF_8).takeIf { it.any { c -> c.isLetterOrDigit() } }
+
+    /**
+     * Samsung Notes for Windows stores text in the same bounded Common shape used by the
+     * MIT-compatible parser reference: u32 byte length, u32 UTF-16 code-unit length,
+     * UTF-16LE text, a u32 span vector, then a u32 paragraph vector. This is deliberately
+     * parsed as a self-describing record rather than by scraping arbitrary UTF-16 strings.
+     */
+    private fun decodeStructuredText(bytes: ByteArray, title: String, warnings: MutableList<ParseWarning>): StructuredText? {
+        var best: StructuredText? = null
+        var bestScore = -1
+        for (offset in 0..bytes.size - 8) {
+            val objectSize = u32At(bytes, offset) ?: continue
+            val objectEnd = offset.toLong() + 4L + objectSize
+            if (objectSize !in 32..SdocxLimits.MAX_OBJECT_BYTES.toLong() || objectEnd > bytes.size) continue
+            val charCount = u32At(bytes, offset + 4) ?: continue
+            if (charCount !in 1..SdocxLimits.MAX_TEXT_CHARS.toLong()) continue
+            val textStart = offset + 8
+            val textEnd = textStart.toLong() + charCount * 2L
+            if (textEnd > objectEnd || textEnd > bytes.size) continue
+            val text = bytes.copyOfRange(textStart, textEnd.toInt()).toString(Charsets.UTF_16LE)
+            if (!isCredibleText(text) || text == title) continue
+            val parsed = runCatching { parseTextVectors(bytes, text, textEnd.toInt(), objectEnd.toInt()) }
+                .getOrNull() ?: continue
+            val score = text.count { it.isLetterOrDigit() } + text.count { it == '\n' } * 2
+            if (score > bestScore) {
+                best = parsed
+                bestScore = score
+            }
+        }
+        if (best == null && bytes.size > SdocxLimits.MAX_OBJECT_BYTES) {
+            warnings += ParseWarning("note.note typed-text search was bounded")
+        }
+        return best
+    }
+
+    private fun parseTextVectors(bytes: ByteArray, text: String, textEnd: Int, objectEnd: Int): StructuredText? {
+        val reader = LittleEndianReader(bytes)
+        reader.position = textEnd
+        val spanCount = reader.u32().toInt()
+        if (spanCount !in 0..SdocxLimits.MAX_TEXT_RANGES) return null
+        val spans = buildList {
+            repeat(spanCount) {
+                val dataSize = reader.u16()
+                if (dataSize < 16 || reader.position + dataSize > objectEnd) throw BoundsException("span record exceeds text object")
+                val type = reader.i32()
+                val start = reader.i32()
+                val end = reader.i32()
+                reader.u32()
+                val extraSize = dataSize - 16
+                val extra = reader.bytes(extraSize)
+                if (start in 0..text.length && end in start..text.length) add(TextSpanRecord(type, start, end, extra))
+            }
+        }
+        val paragraphCount = reader.u32().toInt()
+        if (paragraphCount !in 0..SdocxLimits.MAX_TEXT_RANGES) return null
+        val paragraphs = buildList {
+            repeat(paragraphCount) {
+                val dataSize = reader.u16()
+                if (dataSize < 12 || reader.position + dataSize > objectEnd) throw BoundsException("paragraph record exceeds text object")
+                val type = reader.i32()
+                val start = reader.i32()
+                val end = reader.i32()
+                val extra = reader.bytes(dataSize - 12)
+                if (start >= 0 && end >= start) add(ParagraphRecord(type, start, end, extra))
+            }
+        }
+        return StructuredText(text, spans, paragraphs)
+    }
+
+    private fun toElements(record: StructuredText, warnings: MutableList<ParseWarning>): List<RichTextElement> {
+        val lines = splitLines(record.text)
+        val paragraphs = lines.mapIndexed { index, line ->
+            val styles = record.paragraphs.filter { index >= it.start && index < it.end }
+            val listRecord = styles.firstOrNull { it.type == 5 }
+            val listCode = listRecord?.extra?.let { u32At(it, 0)?.toInt() }
+            val listKind = when (listCode) {
+                0 -> null
+                2 -> "checkbox"
+                4 -> "number"
+                8 -> "bullet"
+                null -> null
+                else -> {
+                    warnings += ParseWarning("unknown paragraph list code $listCode in note.note")
+                    null
+                }
+            }
+            val indent = styles.firstOrNull { it.type == 2 }?.extra?.let { u32At(it, 0)?.toInt() } ?: 0
+            val start = line.start
+            val end = line.end
+            val hasStrike = record.spans.any { it.type == 20 && styleEnabled(it) && it.start <= start && it.end >= end && end > start }
+            val checked = if (listKind == "checkbox") {
+                val state = listRecord?.extra?.let { u32At(it, 4)?.toInt() == 1 } == true
+                state || hasStrike
+            } else null
+            val listNumber = if (listKind == "number") listRecord?.extra?.let { u32At(it, 4)?.toInt() }?.takeIf { it > 0 } else null
+            val styled = styledSpans(record.text, record.spans, start, end)
+            val checkboxStrikeApproximation = checked == true && styled.none { it.strike } && line.text.isNotBlank()
+            RichTextElement(
+                text = line.text,
+                sourceOrder = index,
+                spans = if (checkboxStrikeApproximation) styled.map { it.copy(strike = true) } else styled,
+                paragraph = ParagraphStyle(indent = indent, listKind = listKind, checked = checked, listNumber = listNumber)
+            )
+        }
+        return paragraphs
+    }
+
+    private fun styledSpans(text: String, spans: List<TextSpanRecord>, start: Int, end: Int): List<RichTextSpan> {
+        if (end <= start) return emptyList()
+        val boundaries = (listOf(start, end) + spans.flatMap { listOf(maxOf(start, it.start), minOf(end, it.end)) })
+            .filter { it in start..end }.distinct().sorted()
+        return boundaries.zipWithNext().mapNotNull { (from, to) ->
+            if (to <= from) return@mapNotNull null
+            val active = spans.filter { from >= it.start && from < it.end }
+            RichTextSpan(
+                text = text.substring(from, to),
+                bold = active.any { it.type == 5 && styleEnabled(it) },
+                italic = active.any { it.type == 6 && styleEnabled(it) },
+                underline = active.any { it.type == 7 && styleEnabled(it) },
+                strike = active.any { it.type == 20 && styleEnabled(it) }
+            )
+        }
+    }
+
+    private fun styleEnabled(span: TextSpanRecord): Boolean = u16At(span.extra, 0)?.let { it != 0 } == true
+
+    private data class Line(val start: Int, val end: Int, val text: String)
+    private fun splitLines(text: String): List<Line> {
+        val result = mutableListOf<Line>(); var start = 0
+        text.forEachIndexed { index, char -> if (char == '\n') { result += Line(start, index, text.substring(start, index).trimEnd('\r')); start = index + 1 } }
+        result += Line(start, text.length, text.substring(start).trimEnd('\r'))
+        return result
+    }
+
+    private fun isCredibleText(text: String): Boolean = text.isNotBlank() &&
+        '\u0000' !in text && '\ufffd' !in text &&
+        text.none { it.isISOControl() && it != '\n' && it != '\r' && it != '\t' } &&
+        text.any { it.isLetterOrDigit() }
+
+    private fun decodeTextObject(bytes: ByteArray): String? = runCatching { LittleEndianReader(bytes).longUtf16() }
+        .getOrNull()?.takeIf(::isCredibleText)
+
+    private fun u32At(bytes: ByteArray, offset: Int): Long? = if (offset >= 0 && offset + 4 <= bytes.size) {
+        (bytes[offset].toLong() and 255) or ((bytes[offset + 1].toLong() and 255) shl 8) or
+            ((bytes[offset + 2].toLong() and 255) shl 16) or ((bytes[offset + 3].toLong() and 255) shl 24)
+    } else null
+
+    private fun u16At(bytes: ByteArray, offset: Int): Int? = if (offset >= 0 && offset + 2 <= bytes.size) {
+        (bytes[offset].toInt() and 255) or ((bytes[offset + 1].toInt() and 255) shl 8)
+    } else null
+
 }
 
 object PageIdParser {
@@ -270,7 +484,13 @@ object PageParser {
 
 object TextObjectParser {
     fun parse(bytes: ByteArray): RichTextElement = RichTextElement(parseText(bytes) ?: "")
-    fun parseText(bytes: ByteArray): String? = runCatching { val r = LittleEndianReader(bytes); r.longUtf16() }.getOrNull()?.takeIf { it.isNotBlank() } ?: bytes.toString(Charsets.UTF_8).takeIf { it.any { c -> c.isLetterOrDigit() } }
+    fun parseText(bytes: ByteArray): String? = runCatching { LittleEndianReader(bytes).longUtf16() }
+        .getOrNull()
+        ?.takeIf { text ->
+            text.isNotBlank() && '\u0000' !in text && '\ufffd' !in text &&
+                text.none { it.isISOControl() && it != '\n' && it != '\r' && it != '\t' } &&
+                text.any { it.isLetterOrDigit() }
+        }
 }
 object ImageObjectParser { fun parse(bindId: String): ImageElement = ImageElement(bindId) }
 object StrokeParser {

@@ -98,6 +98,19 @@ object ArchiveExporter {
     private fun put(zip: ZipOutputStream, used: MutableSet<String>, path: String, input: InputStream) { val safe = path.replace('\\', '/'); require(!safe.startsWith('/') && safe.split('/').none { it == ".." }); if (!used.add(safe)) return; zip.putNextEntry(ZipEntry(safe)); val buffer = ByteArray(64 * 1024); while (true) { val read = input.read(buffer); if (read < 0) break; zip.write(buffer, 0, read) }; zip.closeEntry() }
     fun report(source: String, result: ParseResult, extraWarnings: List<String> = emptyList()): NoteReport {
         val status = if (result.status == ParseStatus.SUCCESS && extraWarnings.isNotEmpty()) ParseStatus.PARTIAL else result.status
-        return NoteReport(result.metadata.title, source, status, result.pages.size, result.pages.sumOf { p -> p.elements.count { it is RichTextElement } }, result.pages.sumOf { p -> p.elements.count { it is ImageElement } }, result.pages.sumOf { p -> p.elements.count { it is HandwritingElement } }, result.pages.sumOf { p -> p.elements.count { it is AttachmentElement } }, result.warnings.map { it.message } + extraWarnings)
+        return NoteReport(
+            result.metadata.title,
+            source,
+            status,
+            result.pages.size,
+            result.topLevelElements.size + result.pages.sumOf { p -> p.elements.count { it is RichTextElement } },
+            result.pages.sumOf { p -> p.elements.count { it is ImageElement } } + result.media.count { isImageFilename(it.filename) },
+            result.pages.withIndex().flatMap { (index, page) -> page.elements.filterIsInstance<HandwritingElement>().map { index + 1 } }.toSet().size,
+            result.pages.sumOf { p -> p.elements.count { it is AttachmentElement } } + result.media.count { it.attachment || !isKnownMediaFilename(it.filename) },
+            result.warnings.map { it.message } + extraWarnings
+        )
     }
+
+    private fun isImageFilename(filename: String): Boolean = filename.substringAfterLast('.', "").lowercase() in setOf("jpg", "jpeg", "png", "webp")
+    private fun isKnownMediaFilename(filename: String): Boolean = filename.substringAfterLast('.', "").lowercase() in setOf("jpg", "jpeg", "png", "webp", "pdf", "m4a", "mp3", "wav", "mp4")
 }
