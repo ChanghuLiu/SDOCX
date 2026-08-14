@@ -2,6 +2,35 @@
     <string name="app_name">Notes Escape: SDOCX</string>
     <string name="processed_locally">Processed entirely on this device</string>
     <string name="no_upload_account">No upload • No account</string>
+    <string name="home_description">Convert Samsung Notes .sdocx exports into a portable Markdown / Obsidian-compatible ZIP archive.</string>
+    <string name="about_help">About / Help</string>
+    <string name="privacy">Privacy</string>
+    <string name="dismiss">Close</string>
+    <string name="about_description">Notes Escape is an independent local migration utility for Samsung Notes .sdocx exports.</string>
+    <string name="about_what_is_title">What is .sdocx?</string>
+    <string name="about_what_is_body">.sdocx is Samsung Notes’ export format. Select exported files or a folder and create one portable ZIP archive.</string>
+    <string name="about_export_title">Export from Samsung Notes</string>
+    <string name="about_export_steps">Samsung Notes
+→ Open or select a note
+→ Save as file / Share
+→ Samsung Notes file
+→ .sdocx
+
+Menu wording may vary by Samsung Notes version. Do not choose DOCX or PDF when you want an SDOCX conversion.</string>
+    <string name="about_preserves_title">What this app preserves</string>
+    <string name="about_preserves_body">Typed text, Unicode and RTL text, images and media where present, handwriting as SVG where supported, attachments, and optional original .sdocx files.</string>
+    <string name="about_limitations_title">Known limitations</string>
+    <string name="about_limitations_body">Some Samsung Notes formatting may not convert exactly.
+Complex tables, formulas, proprietary objects, or newer and older SDOCX variants may be partially converted.
+Locked notes must be unlocked in Samsung Notes before export.
+Original page layout is not guaranteed.
+Rich formatting support varies by Samsung Notes version.
+Original .sdocx files can be preserved in the migration ZIP.</string>
+    <string name="independent_disclaimer">Notes Escape is an independent migration utility and is not affiliated with, endorsed by, or sponsored by Samsung.</string>
+    <string name="privacy_title">Privacy</string>
+    <string name="privacy_body">Conversion runs locally on this device. Files are not uploaded or shared. There is no account, advertising, analytics, backend, or Internet permission. You choose the source files and ZIP destination with Android’s file picker. Temporary cache files may exist during conversion and are cleaned on completion, cancellation, failure, and app startup.
+
+Contact: artbyte@126.com</string>
     <string name="select_files">Select .sdocx files</string>
     <string name="select_folder">Select folder</string>
     <string name="empty_state">No .sdocx files selected</string>
@@ -32,6 +61,8 @@
     <string name="converting_progress">Converting %1$d of %2$d: %3$s</string>
     <string name="conversion_counters">Completed: %1$d • Partial: %2$d • Locked: %3$d • Corrupt/failed: %4$d</string>
     <string name="result_summary">Conversion result</string>
+    <string name="saved_zip">ZIP saved: %1$s</string>
+    <string name="saved_zip_default">selected destination</string>
     <string name="result_completed">Completed: %1$d</string>
     <string name="result_partial">Partial: %1$d</string>
     <string name="result_locked">Locked: %1$d</string>

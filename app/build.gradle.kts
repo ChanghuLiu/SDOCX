@@ -23,7 +23,9 @@ android {
 
     buildTypes {
         release {
+            isDebuggable = false
             optimization {
+                // V1 keeps optimization off until release-size and mapping policy are finalized.
                 enable = false
             }
         }

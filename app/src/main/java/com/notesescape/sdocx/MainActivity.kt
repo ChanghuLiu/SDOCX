@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -23,6 +26,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -72,7 +76,8 @@ private data class ConversionSummary(
     val partial: Int = 0,
     val locked: Int = 0,
     val corruptFailed: Int = 0,
-    val cancelled: Boolean = false
+    val cancelled: Boolean = false,
+    val savedFile: String? = null
 )
 
 private data class ConversionProgress(
@@ -105,6 +110,8 @@ private fun NotesEscapeApp(incoming: Intent) {
     var progress by remember { mutableStateOf(ConversionProgress(total = sources.size)) }
     var result by remember { mutableStateOf(ConversionSummary()) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var showAbout by remember { mutableStateOf(false) }
+    var showPrivacy by remember { mutableStateOf(false) }
     var format by remember { mutableStateOf(ExportFormat.CLEAN_MARKDOWN) }
     var preserve by remember { mutableStateOf(true) }
     var attachments by remember { mutableStateOf(true) }
@@ -193,7 +200,7 @@ private fun NotesEscapeApp(incoming: Intent) {
                         }
                     } ?: error(context.getString(R.string.destination_open_error))
                     withContext(Dispatchers.Main) {
-                        result = archive.summary()
+                        result = archive.summary().copy(savedFile = destination.lastPathSegment ?: context.getString(R.string.saved_zip_default))
                         stage = UiStage.RESULT
                     }
                 } catch (_: CancellationException) {
@@ -233,6 +240,13 @@ private fun NotesEscapeApp(incoming: Intent) {
             item {
                 Text(stringResource(R.string.processed_locally), style = MaterialTheme.typography.titleMedium)
                 Text(stringResource(R.string.no_upload_account), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.home_description))
+            }
+            item {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { showAbout = true }) { Text(stringResource(R.string.about_help)) }
+                    OutlinedButton(onClick = { showPrivacy = true }) { Text(stringResource(R.string.privacy)) }
+                }
             }
             item { Button(onClick = { multiple.launch(arrayOf("application/zip", "application/octet-stream")) }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.select_files)) } }
             item { OutlinedButton(onClick = { folder.launch(null) }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.select_folder)) } }
@@ -269,6 +283,12 @@ private fun NotesEscapeApp(incoming: Intent) {
             if (stage == UiStage.SELECT && sources.isEmpty()) item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.select_empty_help)) }
         }
     }
+    if (showAbout) {
+        AboutHelpDialog(onDismiss = { showAbout = false })
+    }
+    if (showPrivacy) {
+        PrivacyDialog(onDismiss = { showPrivacy = false })
+    }
 }
 
 private val UiStage.stringRes: Int
@@ -295,12 +315,46 @@ private val UiStage.stringRes: Int
 @Composable private fun ResultContent(summary: ConversionSummary) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(stringResource(R.string.result_summary))
+        summary.savedFile?.let { Text(stringResource(R.string.saved_zip, it), color = MaterialTheme.colorScheme.primary) }
         Text(stringResource(R.string.result_completed, summary.completed))
         Text(stringResource(R.string.result_partial, summary.partial))
         Text(stringResource(R.string.result_locked, summary.locked))
         Text(stringResource(R.string.result_corrupt_failed, summary.corruptFailed))
         if (summary.cancelled) Text(stringResource(R.string.result_cancelled), color = MaterialTheme.colorScheme.error)
     }
+}
+
+@Composable
+private fun AboutHelpDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.about_help)) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.about_description))
+                Text(stringResource(R.string.about_what_is_title), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.about_what_is_body))
+                Text(stringResource(R.string.about_export_title), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.about_export_steps))
+                Text(stringResource(R.string.about_preserves_title), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.about_preserves_body))
+                Text(stringResource(R.string.about_limitations_title), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.about_limitations_body))
+                Text(stringResource(R.string.independent_disclaimer), style = MaterialTheme.typography.bodyMedium)
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dismiss)) } }
+    )
+}
+
+@Composable
+private fun PrivacyDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.privacy_title)) },
+        text = { Text(stringResource(R.string.privacy_body), Modifier.verticalScroll(rememberScrollState())) },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dismiss)) } }
+    )
 }
 
 @Composable private fun Option(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
