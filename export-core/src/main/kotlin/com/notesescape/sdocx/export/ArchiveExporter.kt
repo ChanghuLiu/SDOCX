@@ -81,9 +81,17 @@ object ArchiveExporter {
             } finally {
                 result.media.forEach { it.close() }
             }
-            if (preserveHandwriting) result.pages.forEach { page -> page.elements.filterIsInstance<HandwritingElement>().forEach { handwriting ->
-                put(zip, usedEntries, "assets/${SafeNames.file(result.metadata.title)}/handwriting_page_${page.number.toString().padStart(2, '0')}.svg", MarkdownExporter.svg(handwriting).toByteArray())
-            } }
+            if (preserveHandwriting) result.pages.forEach { page ->
+                val handwriting = page.elements.filterIsInstance<HandwritingElement>()
+                if (handwriting.isNotEmpty()) {
+                    val merged = handwriting.first().copy(
+                        strokes = handwriting.flatMap { it.strokes },
+                        width = handwriting.maxOf { it.width },
+                        height = handwriting.maxOf { it.height }
+                    )
+                    put(zip, usedEntries, "assets/${SafeNames.file(result.metadata.title)}/handwriting_page_${page.number.toString().padStart(2, '0')}.svg", MarkdownExporter.svg(merged).toByteArray())
+                }
+            }
             if (includeOriginals && result.status != ParseStatus.FAILED) runCatching {
                 source.openStream().use { input -> put(zip, usedEntries, "originals/${SafeNames.file(source.displayName)}", input) }
             }.onFailure { extraWarnings += it.message ?: "Unable to preserve original" }
@@ -106,7 +114,7 @@ object ArchiveExporter {
             result.topLevelElements.size + result.pages.sumOf { p -> p.elements.count { it is RichTextElement } },
             result.pages.sumOf { p -> p.elements.count { it is ImageElement } } + result.media.count { isImageFilename(it.filename) },
             result.pages.withIndex().flatMap { (index, page) -> page.elements.filterIsInstance<HandwritingElement>().map { index + 1 } }.toSet().size,
-            result.pages.sumOf { p -> p.elements.count { it is AttachmentElement } } + result.media.count { it.attachment || !isKnownMediaFilename(it.filename) },
+            result.pages.sumOf { p -> p.elements.count { it is AttachmentElement } } + result.media.count { !isImageFilename(it.filename) && (it.attachment || !isKnownMediaFilename(it.filename)) },
             result.warnings.map { it.message } + extraWarnings
         )
     }

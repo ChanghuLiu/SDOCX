@@ -31,6 +31,28 @@ are not converted into binary-looking Markdown.
 These observations are implementation notes from our raw-binary inspection
 and controlled black-box results; no GPL parser implementation was used.
 
+## Independently validated Android observations
+
+Five Samsung Notes Android exports from SM-G973W / Android 12 / Notes 4.4.29.23
+were inspected after the parser was run unchanged. All used format version
+4000 and produced bounded page records. Plain typed Unicode text, including
+Arabic, Chinese, Korean, accents, and emoji, was recovered without reversal.
+
+In the controlled Android image and mixed notes, the JPEG was present in the
+media registry and the structured text contained an embedded-object marker,
+but no page `ImageElement` was exposed by the current object walk. The
+exporter therefore links unrepresented registry media after page content is
+rendered. This preserves the actual registered bytes and is deliberately
+documented as a media-registry fallback, not as claimed exact image-object
+decoding.
+
+The mixed note independently confirmed that Samsung may serialize several
+handwriting objects on one page. Export combines all handwriting elements for
+that page into one SVG; the device sample produced six paths and 266 finite
+points. The PDF test was imported by Samsung Notes as pages and also retained
+as a valid PDF media binding. An unknown `.spi` page asset was copied as an
+attachment and linked rather than interpreted.
+
 ## RC1 memory and source lifecycle
 
 The Android layer never materializes a SAF source into a `ByteArray`. It copies

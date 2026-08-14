@@ -21,16 +21,25 @@ object MarkdownExporter {
             top?.let { appendLine(it); appendLine() }
         }
         val emittedHandwritingPages = mutableSetOf<Int>()
+        val representedMedia = mutableSetOf<String>()
         result.pages.forEach { page -> page.elements.sortedWith(compareBy<PageElement> { it.y }.thenBy { it.x }.thenBy { it.sourceOrder }).forEach { element ->
             if (element is RichTextElement && top != null && normalize(element.text) == normalize(top)) return@forEach
             when (element) {
                 is RichTextElement -> appendLine(formatText(element, format))
-                is ImageElement -> appendLine("![[assets/${SafeNames.file(result.metadata.title)}/${SafeNames.file(element.bindId)}]]")
-                is AttachmentElement -> appendLine("[Attachment](assets/attachments/${SafeNames.file(element.bindId)})")
+                is ImageElement -> result.media.firstOrNull { it.bindId == element.bindId }?.let { media ->
+                    representedMedia += media.bindId
+                    appendLine(mediaMarkdown(result.metadata.title, media))
+                } ?: appendLine("![[assets/${SafeNames.file(result.metadata.title)}/${SafeNames.file(element.bindId)}]]")
+                is AttachmentElement -> result.media.firstOrNull { it.bindId == element.bindId }?.let { media ->
+                    representedMedia += media.bindId
+                    appendLine(mediaMarkdown(result.metadata.title, media))
+                } ?: appendLine("[Attachment](assets/attachments/${SafeNames.file(element.bindId)})")
                 is HandwritingElement -> if (emittedHandwritingPages.add(page.number)) appendLine("![[assets/${SafeNames.file(result.metadata.title)}/handwriting_page_${page.number.toString().padStart(2, '0')}.svg]]")
                 is UnknownElement -> appendLine("<!-- Unsupported object ${element.kind}; see migration report -->")
             }
         }; appendLine() }
+        result.media.filter { it.bindId !in representedMedia }.forEach { appendLine(mediaMarkdown(result.metadata.title, it)) }
+        if (result.media.any { it.bindId !in representedMedia }) appendLine()
     }
     private fun formatText(e: RichTextElement, format: ExportFormat): String {
         val content = if (e.spans.isEmpty()) escapePlain(e.text) else e.spans.joinToString("") { renderSpan(it, format) }
@@ -53,6 +62,16 @@ object MarkdownExporter {
     private fun escapeUrl(value: String): String = value.replace("\\", "%5C").replace("(", "%28").replace(")", "%29").replace(" ", "%20")
     private fun yaml(value: String) = value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
     private fun normalize(value: String) = value.replace("\r\n", "\n").trim()
+    private fun mediaMarkdown(title: String, media: MediaAsset): String {
+        val filename = SafeNames.file(media.filename)
+        val kind = media.openStream().use { MediaType.detect(filename, it) }
+        val folder = if (kind == null) "assets/attachments" else "assets/${SafeNames.file(title)}"
+        return if (kind?.startsWith("image/") == true) {
+            "![[${folder}/${filename}]]"
+        } else {
+            "[Attachment](${folder}/${filename})"
+        }
+    }
     fun svg(element: HandwritingElement): String = buildString {
         val width = if (element.width.isFinite() && element.width > 0f) element.width else 1f; val height = if (element.height.isFinite() && element.height > 0f) element.height else 1f
         append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"$width\" height=\"$height\" viewBox=\"0 0 $width $height\" fill=\"none\">")
