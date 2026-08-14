@@ -6,10 +6,10 @@ The five fixtures were run through the Kotlin `SdocxParser` and `ArchiveExporter
 
 | fixture | title | text | pages | images | media | handwriting | markdown | SVG | result |
 |---|---|---|---:|---:|---:|---:|---|---|---|
-| `Eg walker O(n^2) case_250527_190920.sdocx` | Eg walker O(n^2) case | NOT PRESENT | 1 | 0 | 1 | 47 strokes | PASS | PASS | PASS |
-| `Mako OT N problem still exists Minimal dub_260129_190327.sdocx` | Mako OT N problem still exists. Minimal dub | NOT PRESENT | 1 | 0 | 1 | 6 strokes | PASS | PASS | PASS |
-| `Mako OT N problem still exists_251002_005645 (1).sdocx` | Mako OT N problem still exists. | NOT PRESENT | 1 | 0 | 1 | 29 strokes | PASS | PASS | PASS |
-| `ThisIsTheTitle_251009_012211.sdocx` | ThisIsTheTitle | NOT PRESENT | 1 | 0 | 1 | 1 stroke | PASS | PASS | PASS |
-| `ThisIsTheTitle_251009_042302.sdocx` | ThisIsTheTitle | NOT PRESENT | 1 | 0 | 1 | 3 strokes | PASS | PASS | PASS |
+| `Eg-walker.sdocx` | Eg walker O(n^2) case | NOT PRESENT | 1 | 0 | 1 | 47 strokes | PASS | PASS | PASS |
+| `Mako-minimal.sdocx` | Mako OT N problem still exists. Minimal dub | NOT PRESENT | 1 | 0 | 1 | 6 strokes | PASS | PASS | PASS |
+| `Mako.sdocx` | Mako OT N problem still exists. | NOT PRESENT | 1 | 0 | 1 | 29 strokes | PASS | PASS | PASS |
+| `ThisIsTheTitle-1.sdocx` | ThisIsTheTitle | NOT PRESENT | 1 | 0 | 1 | 1 stroke | PASS | PASS | PASS |
+| `ThisIsTheTitle-2.sdocx` | ThisIsTheTitle | NOT PRESENT | 1 | 0 | 1 | 3 strokes | PASS | PASS | PASS |
 
 Evidence checks: format version `4000`; timestamps were plausible 2025/2026 ISO instants; all stroke coordinates were finite; all five reports were `SUCCESS` with no warnings. The media entries resolve through `media/mediaInfo.dat` EOFX to the original `media/*@page_0000000.spi` bytes. These `.spi` assets are preserved as attachments because they are not ordinary image MIME payloads.

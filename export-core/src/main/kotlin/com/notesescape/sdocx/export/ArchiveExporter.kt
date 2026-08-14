@@ -2,11 +2,24 @@ package com.notesescape.sdocx.export
 
 import com.notesescape.sdocx.core.*
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.io.OutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-data class SourceNote(val filename: String, val bytes: ByteArray)
+/** A reopenable source. Implementations may back this with a cache file rather than RAM. */
+interface ConversionSource : AutoCloseable {
+    val displayName: String
+    fun openStream(): InputStream
+    override fun close() = Unit
+}
+
+/** In-memory source retained for JVM tests and small programmatic conversions. */
+data class SourceNote(val filename: String, val bytes: ByteArray) : ConversionSource {
+    override val displayName: String get() = filename
+    override fun openStream(): InputStream = ByteArrayInputStream(bytes)
+}
+
 data class ExportedArchive(val reports: List<NoteReport>)
 object MediaType {
     fun detect(filename: String, bytes: ByteArray): String? = when {
@@ -22,20 +35,69 @@ object MediaType {
         filename.substringAfterLast('.', "").lowercase() in setOf("m4a", "mp3", "wav", "mp4") -> "application/octet-stream"
         else -> null
     }
+    fun detect(filename: String, input: InputStream): String? {
+        val prefix = ByteArray(16)
+        var length = 0
+        while (length < prefix.size) {
+            val count = input.read(prefix, length, prefix.size - length)
+            if (count < 0) break
+            length += count
+        }
+        return detect(filename, prefix.copyOf(length))
+    }
     private fun ByteArray.startsWith(prefix: ByteArray, offset: Int = 0): Boolean = offset >= 0 && size >= offset + prefix.size && copyOfRange(offset, offset + prefix.size).contentEquals(prefix)
 }
 object ArchiveExporter {
-    fun export(sources: Sequence<SourceNote>, output: OutputStream, format: ExportFormat = ExportFormat.CLEAN_MARKDOWN, includeAttachments: Boolean = true, includeOriginals: Boolean = true, preserveHandwriting: Boolean = true): ExportedArchive {
+    fun export(
+        sources: Sequence<ConversionSource>,
+        output: OutputStream,
+        format: ExportFormat = ExportFormat.CLEAN_MARKDOWN,
+        includeAttachments: Boolean = true,
+        includeOriginals: Boolean = true,
+        preserveHandwriting: Boolean = true,
+        onProgress: (index: Int, total: Int?, report: NoteReport) -> Unit = { _, _, _ -> }
+    ): ExportedArchive {
         val reports = mutableListOf<NoteReport>(); val usedNotes = mutableSetOf<String>(); val usedEntries = mutableSetOf<String>()
-        ZipOutputStream(output).use { zip -> sources.forEach { source ->
-            val result = ByteArrayInputStream(source.bytes).use(SdocxParser::parse); val noteName = SafeNames.unique(SafeNames.file(result.metadata.title) + ".md", usedNotes); put(zip, usedEntries, "notes/$noteName", MarkdownExporter.render(result, format).toByteArray())
-            if (includeAttachments) result.media.forEachIndexed { index, media -> val dir = SafeNames.file(result.metadata.title); val filename = SafeNames.file(media.filename, "asset_$index"); val folder = if (MediaType.detect(filename, media.bytes) == null) "assets/attachments" else "assets/$dir"; put(zip, usedEntries, "$folder/${SafeNames.unique(filename, usedEntries)}", media.bytes) }
-            if (preserveHandwriting) result.pages.forEach { page -> page.elements.filterIsInstance<HandwritingElement>().forEach { handwriting -> put(zip, usedEntries, "assets/${SafeNames.file(result.metadata.title)}/handwriting_page_${page.number.toString().padStart(2, '0')}.svg", MarkdownExporter.svg(handwriting).toByteArray()) } }
-            if (includeOriginals) put(zip, usedEntries, "originals/${SafeNames.file(source.filename)}", source.bytes)
-            reports += report(source.filename, result)
+        ZipOutputStream(output).use { zip -> sources.forEachIndexed { index, source ->
+            val resultAndWarnings = try {
+                source.openStream().use(SdocxParser::parse) to emptyList<String>()
+            } catch (error: java.util.concurrent.CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                ParseResult(DocumentMetadata(title = SafeNames.file(source.displayName)), emptyList(), emptyList(), listOf(ParseWarning(error.message ?: "Unable to read source")), ParseStatus.FAILED) to listOf(error.message ?: "Unable to read source")
+            }
+            val result = resultAndWarnings.first
+            val extraWarnings = resultAndWarnings.second.toMutableList()
+            val noteName = SafeNames.unique(SafeNames.file(result.metadata.title) + ".md", usedNotes)
+            put(zip, usedEntries, "notes/$noteName", MarkdownExporter.render(result, format).toByteArray())
+            try {
+                if (includeAttachments) result.media.forEachIndexed { mediaIndex, media ->
+                    val dir = SafeNames.file(result.metadata.title)
+                    val filename = SafeNames.file(media.filename, "asset_$mediaIndex")
+                    val kind = media.openStream().use { MediaType.detect(filename, it) }
+                    val folder = if (kind == null) "assets/attachments" else "assets/$dir"
+                    media.openStream().use { input -> put(zip, usedEntries, "$folder/${SafeNames.unique(filename, usedEntries)}", input) }
+                }
+            } finally {
+                result.media.forEach { it.close() }
+            }
+            if (preserveHandwriting) result.pages.forEach { page -> page.elements.filterIsInstance<HandwritingElement>().forEach { handwriting ->
+                put(zip, usedEntries, "assets/${SafeNames.file(result.metadata.title)}/handwriting_page_${page.number.toString().padStart(2, '0')}.svg", MarkdownExporter.svg(handwriting).toByteArray())
+            } }
+            if (includeOriginals && result.status != ParseStatus.FAILED) runCatching {
+                source.openStream().use { input -> put(zip, usedEntries, "originals/${SafeNames.file(source.displayName)}", input) }
+            }.onFailure { extraWarnings += it.message ?: "Unable to preserve original" }
+            val noteReport = report(source.displayName, result, extraWarnings)
+            reports += noteReport
+            onProgress(index + 1, null, noteReport)
+            runCatching { source.close() }
         }; put(zip, usedEntries, "migration-report.md", MigrationReport.markdown(reports).toByteArray()); put(zip, usedEntries, "migration-report.json", MigrationReport.json(reports).toByteArray()) }
         return ExportedArchive(reports)
     }
     private fun put(zip: ZipOutputStream, used: MutableSet<String>, path: String, bytes: ByteArray) { val safe = path.replace('\\', '/'); require(!safe.startsWith('/') && safe.split('/').none { it == ".." }); if (!used.add(safe)) return; zip.putNextEntry(ZipEntry(safe)); zip.write(bytes); zip.closeEntry() }
-    fun report(source: String, result: ParseResult): NoteReport = NoteReport(result.metadata.title, source, result.status, result.pages.size, result.pages.sumOf { p -> p.elements.count { it is RichTextElement } }, result.pages.sumOf { p -> p.elements.count { it is ImageElement } }, result.pages.sumOf { p -> p.elements.count { it is HandwritingElement } }, result.pages.sumOf { p -> p.elements.count { it is AttachmentElement } }, result.warnings.map { it.message })
+    private fun put(zip: ZipOutputStream, used: MutableSet<String>, path: String, input: InputStream) { val safe = path.replace('\\', '/'); require(!safe.startsWith('/') && safe.split('/').none { it == ".." }); if (!used.add(safe)) return; zip.putNextEntry(ZipEntry(safe)); val buffer = ByteArray(64 * 1024); while (true) { val read = input.read(buffer); if (read < 0) break; zip.write(buffer, 0, read) }; zip.closeEntry() }
+    fun report(source: String, result: ParseResult, extraWarnings: List<String> = emptyList()): NoteReport {
+        val status = if (result.status == ParseStatus.SUCCESS && extraWarnings.isNotEmpty()) ParseStatus.PARTIAL else result.status
+        return NoteReport(result.metadata.title, source, status, result.pages.size, result.pages.sumOf { p -> p.elements.count { it is RichTextElement } }, result.pages.sumOf { p -> p.elements.count { it is ImageElement } }, result.pages.sumOf { p -> p.elements.count { it is HandwritingElement } }, result.pages.sumOf { p -> p.elements.count { it is AttachmentElement } }, result.warnings.map { it.message } + extraWarnings)
+    }
 }

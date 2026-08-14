@@ -1,1 +1,45 @@
-<resources><string name="app_name">Notes Escape: SDOCX</string></resources>
+<resources>
+    <string name="app_name">Notes Escape: SDOCX</string>
+    <string name="processed_locally">Processado inteiramente neste dispositivo</string>
+    <string name="no_upload_account">Sem envio • Sem conta</string>
+    <string name="select_files">Selecionar arquivos .sdocx</string>
+    <string name="select_folder">Selecionar pasta</string>
+    <string name="empty_state">Nenhum arquivo .sdocx selecionado</string>
+    <string name="select_empty_help">Escolha uma ou mais exportações do Samsung Notes para começar.</string>
+    <string name="stage_select">SELEÇÃO</string>
+    <string name="stage_preflight">PRÉ-VERIFICAÇÃO</string>
+    <string name="stage_options">OPÇÕES</string>
+    <string name="stage_converting">CONVERSÃO</string>
+    <string name="stage_result">RESULTADO</string>
+    <string name="files_selected">%1$d arquivo(s) .sdocx selecionado(s)</string>
+    <string name="files_discovered">Arquivos .sdocx encontrados: %1$d</string>
+    <string name="scanning_notes">Analisando a nota %1$d de %2$d</string>
+    <string name="preflight_summary">Diagnóstico da importação</string>
+    <string name="preflight_readable">SDOCX legíveis: %1$d</string>
+    <string name="preflight_locked">Bloqueadas: %1$d</string>
+    <string name="preflight_corrupt">Corrompidas ou com falha: %1$d</string>
+    <string name="preflight_text">Contêm texto: %1$d</string>
+    <string name="preflight_handwriting">Contêm escrita à mão: %1$d</string>
+    <string name="preflight_media">Contêm imagens ou mídia: %1$d</string>
+    <string name="options_description">Escolha como o arquivo portátil será escrito.</string>
+    <string name="clean_markdown">Markdown limpo</string>
+    <string name="obsidian_rich">Obsidian avançado</string>
+    <string name="preserve_handwriting">Preservar escrita à mão como SVG</string>
+    <string name="include_attachments">Incluir anexos</string>
+    <string name="include_originals">Incluir arquivos .sdocx originais</string>
+    <string name="save_zip">Salvar ZIP</string>
+    <string name="cancel">Cancelar</string>
+    <string name="converting_progress">Convertendo %1$d de %2$d: %3$s</string>
+    <string name="conversion_counters">Concluídas: %1$d • Parciais: %2$d • Bloqueadas: %3$d • Corrompidas/com falha: %4$d</string>
+    <string name="result_summary">Resultado da conversão</string>
+    <string name="result_completed">Concluídas: %1$d</string>
+    <string name="result_partial">Parciais: %1$d</string>
+    <string name="result_locked">Bloqueadas: %1$d</string>
+    <string name="result_corrupt_failed">Corrompidas/com falha: %1$d</string>
+    <string name="result_cancelled">Conversão cancelada. Os dados temporários foram liberados.</string>
+    <string name="error_message">Erro: %1$s</string>
+    <string name="unknown_error">Erro desconhecido</string>
+    <string name="destination_open_error">Não foi possível abrir o destino selecionado.</string>
+    <string name="default_zip_filename">NotesEscape.zip</string>
+    <plurals name="files_selected_plural"><item quantity="one">%1$d arquivo .sdocx selecionado</item><item quantity="other">%1$d arquivos .sdocx selecionados</item></plurals>
+</resources>

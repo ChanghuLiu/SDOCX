@@ -1,1 +1,45 @@
-<resources><string name="app_name">هروب الملاحظات: SDOCX</string></resources>
+<resources>
+    <string name="app_name">هروب الملاحظات: SDOCX</string>
+    <string name="processed_locally">تتم المعالجة بالكامل على هذا الجهاز</string>
+    <string name="no_upload_account">لا رفع • لا حساب</string>
+    <string name="select_files">اختيار ملفات ‎.sdocx</string>
+    <string name="select_folder">اختيار مجلد</string>
+    <string name="empty_state">لم يتم اختيار ملفات ‎.sdocx</string>
+    <string name="select_empty_help">اختر تصديراً واحداً أو أكثر من Samsung Notes للبدء.</string>
+    <string name="stage_select">اختيار</string>
+    <string name="stage_preflight">فحص أولي</string>
+    <string name="stage_options">الخيارات</string>
+    <string name="stage_converting">تحويل</string>
+    <string name="stage_result">النتيجة</string>
+    <string name="files_selected">تم اختيار %1$d من ملفات ‎.sdocx</string>
+    <string name="files_discovered">ملفات ‎.sdocx المكتشفة: %1$d</string>
+    <string name="scanning_notes">فحص الملاحظة %1$d من %2$d</string>
+    <string name="preflight_summary">تشخيص الاستيراد</string>
+    <string name="preflight_readable">ملفات SDOCX قابلة للقراءة: %1$d</string>
+    <string name="preflight_locked">مقفلة: %1$d</string>
+    <string name="preflight_corrupt">تالفة أو فاشلة: %1$d</string>
+    <string name="preflight_text">تحتوي على نص: %1$d</string>
+    <string name="preflight_handwriting">تحتوي على كتابة يدوية: %1$d</string>
+    <string name="preflight_media">تحتوي على صور أو وسائط: %1$d</string>
+    <string name="options_description">اختر طريقة كتابة الأرشيف القابل للنقل.</string>
+    <string name="clean_markdown">Markdown نظيف</string>
+    <string name="obsidian_rich">Obsidian غني</string>
+    <string name="preserve_handwriting">حفظ الكتابة اليدوية بصيغة SVG</string>
+    <string name="include_attachments">تضمين المرفقات</string>
+    <string name="include_originals">تضمين ملفات ‎.sdocx الأصلية</string>
+    <string name="save_zip">حفظ ZIP</string>
+    <string name="cancel">إلغاء</string>
+    <string name="converting_progress">تحويل %1$d من %2$d: %3$s</string>
+    <string name="conversion_counters">مكتملة: %1$d • جزئية: %2$d • مقفلة: %3$d • تالفة/فاشلة: %4$d</string>
+    <string name="result_summary">نتيجة التحويل</string>
+    <string name="result_completed">مكتملة: %1$d</string>
+    <string name="result_partial">جزئية: %1$d</string>
+    <string name="result_locked">مقفلة: %1$d</string>
+    <string name="result_corrupt_failed">تالفة/فاشلة: %1$d</string>
+    <string name="result_cancelled">أُلغي التحويل. تم تحرير البيانات المؤقتة.</string>
+    <string name="error_message">خطأ: %1$s</string>
+    <string name="unknown_error">خطأ غير معروف</string>
+    <string name="destination_open_error">تعذر فتح الوجهة المحددة.</string>
+    <string name="default_zip_filename">NotesEscape.zip</string>
+    <plurals name="files_selected_plural"><item quantity="zero">لم يتم اختيار ملفات ‎.sdocx</item><item quantity="one">تم اختيار ملف ‎.sdocx واحد</item><item quantity="two">تم اختيار ملفي ‎.sdocx</item><item quantity="few">تم اختيار %1$d ملفات ‎.sdocx</item><item quantity="many">تم اختيار %1$d ملفاً ‎.sdocx</item><item quantity="other">تم اختيار %1$d ملف ‎.sdocx</item></plurals>
+</resources>

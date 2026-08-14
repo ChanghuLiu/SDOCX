@@ -2,6 +2,9 @@ package com.notesescape.sdocx
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import android.content.res.Configuration
+import android.view.View
+import java.util.Locale
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,5 +23,22 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.notesescape.sdocx", appContext.packageName)
+    }
+
+    @Test
+    fun localizedResourcesResolveAndArabicUsesRtl() {
+        val base = InstrumentationRegistry.getInstrumentation().targetContext
+        assertEquals("Notes Escape: SDOCX", base.getString(com.notesescape.sdocx.R.string.app_name))
+
+        val frenchConfig = Configuration(base.resources.configuration)
+        frenchConfig.setLocale(Locale.FRENCH)
+        val french = base.createConfigurationContext(frenchConfig)
+        assertEquals("Notes Escape : SDOCX", french.getString(com.notesescape.sdocx.R.string.app_name))
+
+        val arabicConfig = Configuration(base.resources.configuration)
+        arabicConfig.setLocale(Locale("ar"))
+        val arabic = base.createConfigurationContext(arabicConfig)
+        assertEquals("هروب الملاحظات: SDOCX", arabic.getString(com.notesescape.sdocx.R.string.app_name))
+        assertEquals(View.LAYOUT_DIRECTION_RTL, arabic.resources.configuration.layoutDirection)
     }
 }

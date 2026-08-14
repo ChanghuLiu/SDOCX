@@ -1,6 +1,11 @@
 package com.notesescape.sdocx.core
 
 import java.io.ByteArrayOutputStream
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -45,7 +50,28 @@ data class RichTextSpan(val text: String, val bold: Boolean = false, val italic:
 data class ParagraphStyle(val alignment: String? = null, val indent: Int = 0, val listKind: String? = null, val checked: Boolean? = null)
 data class Stroke(val points: List<StrokePoint>, val color: Int = 0xff000000.toInt(), val width: Float = 2f)
 data class StrokePoint(val x: Float, val y: Float, val pressure: Float = 1f)
-data class MediaAsset(val bindId: String, val filename: String, val bytes: ByteArray, val hash: String? = null, val attachment: Boolean = false, val archivePath: String? = null)
+interface MediaContent : AutoCloseable {
+    val size: Long?
+    fun openStream(): InputStream
+    fun readBytes(): ByteArray = openStream().use { it.readBytes() }
+    override fun close() = Unit
+}
+
+class InMemoryMediaContent(private val value: ByteArray) : MediaContent {
+    override val size: Long = value.size.toLong()
+    override fun openStream(): InputStream = value.inputStream()
+}
+
+class FileMediaContent(private val file: File, override val size: Long = file.length()) : MediaContent {
+    override fun openStream(): InputStream = BufferedInputStream(FileInputStream(file), 64 * 1024)
+    override fun close() { file.delete() }
+}
+
+data class MediaAsset(val bindId: String, val filename: String, val content: MediaContent, val hash: String? = null, val attachment: Boolean = false, val archivePath: String? = null) {
+    val bytes: ByteArray get() = content.readBytes()
+    fun openStream(): InputStream = content.openStream()
+    fun close() = content.close()
+}
 data class MediaBinding(val bindId: String, val archivePath: String, val filename: String, val hash: String? = null, val attachment: Boolean? = null)
 data class ParseWarning(val message: String, val entry: String? = null)
 enum class ParseStatus { SUCCESS, PARTIAL, LOCKED, UNSUPPORTED, CORRUPT, FAILED }
@@ -73,44 +99,92 @@ class LittleEndianReader(private val bytes: ByteArray) {
 }
 
 object SdocxArchiveReader {
+    data class Archive(val entries: Map<String, ByteArray>, val media: Map<String, MediaContent>) : AutoCloseable {
+        override fun close() { media.values.forEach { it.close() } }
+    }
+
     fun read(input: InputStream, warnings: MutableList<ParseWarning> = mutableListOf()): Map<String, ByteArray> {
-        val result = linkedMapOf<String, ByteArray>(); var total = 0L
+        val archive = readArchive(input, warnings)
+        return try {
+            buildMap {
+                putAll(archive.entries)
+                archive.media.forEach { (path, content) -> put(path, content.readBytes()) }
+            }
+        } finally {
+            archive.close()
+        }
+    }
+
+    /** Structural records stay in memory; media payloads spill to one temporary file each. */
+    fun readArchive(input: InputStream, warnings: MutableList<ParseWarning> = mutableListOf()): Archive {
+        val result = linkedMapOf<String, ByteArray>(); val media = linkedMapOf<String, MediaContent>(); var total = 0L
+        val temporaryFiles = mutableListOf<MediaContent>()
         ZipInputStream(input).use { zip ->
             var count = 0
-            while (true) {
-                val entry = try { zip.nextEntry } catch (e: Exception) { throw BoundsException("malformed ZIP: ${e.message}") } ?: break
-                if (++count > SdocxLimits.MAX_ARCHIVE_ENTRIES) throw BoundsException("archive entry count exceeds ${SdocxLimits.MAX_ARCHIVE_ENTRIES}")
-                val name = entry.name.replace('\\','/')
-                if (name.startsWith("/") || name.split('/').any { it == ".." } || name.contains('\u0000')) throw BoundsException("unsafe ZIP path: $name")
-                if (result.containsKey(name)) warnings += ParseWarning("duplicate ZIP entry ignored: $name", name)
-                val out = ByteArrayOutputStream(); val buf = ByteArray(8192); var entryTotal = 0L
+            try {
                 while (true) {
-                    val n = try { zip.read(buf) } catch (e: Exception) { throw BoundsException("truncated ZIP entry $name") }
-                    if (n < 0) break
-                    entryTotal += n; total += n
-                    if (entryTotal > SdocxLimits.MAX_ENTRY_UNCOMPRESSED_BYTES) throw BoundsException("ZIP entry too large: $name")
-                    if (total > SdocxLimits.MAX_TOTAL_UNCOMPRESSED_BYTES) throw BoundsException("total ZIP content too large")
-                    out.write(buf, 0, n)
+                    val entry = try { zip.nextEntry } catch (e: Exception) { throw BoundsException("malformed ZIP: ${e.message}") } ?: break
+                    if (++count > SdocxLimits.MAX_ARCHIVE_ENTRIES) throw BoundsException("archive entry count exceeds ${SdocxLimits.MAX_ARCHIVE_ENTRIES}")
+                    val name = entry.name.replace('\\','/')
+                    if (name.startsWith("/") || name.split('/').any { it == ".." } || name.contains('\u0000')) throw BoundsException("unsafe ZIP path: $name")
+                    val duplicate = result.containsKey(name) || media.containsKey(name)
+                    if (duplicate) warnings += ParseWarning("duplicate ZIP entry ignored: $name", name)
+                    val isMedia = name.startsWith("media/") && !name.endsWith("mediaInfo.dat", ignoreCase = true)
+                    val out = if (isMedia && !duplicate) FileMediaContent.create() else null
+                    if (out != null) temporaryFiles += out
+                    val memory = if (out == null) ByteArrayOutputStream() else null
+                    val buf = ByteArray(64 * 1024); var entryTotal = 0L
+                    while (true) {
+                        val n = try { zip.read(buf) } catch (e: Exception) { throw BoundsException("truncated ZIP entry $name") }
+                        if (n < 0) break
+                        entryTotal += n; total += n
+                        if (entryTotal > SdocxLimits.MAX_ENTRY_UNCOMPRESSED_BYTES) throw BoundsException("ZIP entry too large: $name")
+                        if (total > SdocxLimits.MAX_TOTAL_UNCOMPRESSED_BYTES) throw BoundsException("total ZIP content too large")
+                        if (out != null) out.write(buf, 0, n) else memory?.write(buf, 0, n)
+                    }
+                    if (!duplicate) {
+                        if (out != null) media[name] = out else result[name] = memory?.toByteArray() ?: byteArrayOf()
+                    } else {
+                        out?.close()
+                    }
+                    zip.closeEntry()
                 }
-                result.putIfAbsent(name, out.toByteArray()); zip.closeEntry()
+            } catch (error: Throwable) {
+                temporaryFiles.forEach { it.close() }
+                throw error
             }
         }
-        return result
+        return Archive(result, media)
+    }
+
+    private class FileMediaContent private constructor(private val target: File) : MediaContent {
+        private val output = BufferedOutputStream(FileOutputStream(target), 64 * 1024)
+        private var written = 0L
+        override val size: Long get() = written
+        fun write(bytes: ByteArray, offset: Int, length: Int) { output.write(bytes, offset, length); written += length }
+        override fun openStream(): InputStream { output.flush(); return BufferedInputStream(FileInputStream(target), 64 * 1024) }
+        override fun close() { runCatching { output.close() }; target.delete() }
+        companion object { fun create(): FileMediaContent = FileMediaContent(File.createTempFile("sdocx-media-", ".bin")) }
     }
 }
 
 object SdocxParser {
-    fun parse(input: InputStream): ParseResult = try { val warnings = mutableListOf<ParseWarning>(); val entries = SdocxArchiveReader.read(input, warnings); if (entries.isEmpty()) throw BoundsException("empty SDOCX archive"); parseEntries(entries, warnings) }
+    fun parse(input: InputStream): ParseResult = try { val warnings = mutableListOf<ParseWarning>(); val archive = SdocxArchiveReader.readArchive(input, warnings); if (archive.entries.isEmpty() && archive.media.isEmpty()) { archive.close(); throw BoundsException("empty SDOCX archive") }; parseArchive(archive, warnings) }
     catch (e: Exception) { ParseResult(DocumentMetadata(), emptyList(), emptyList(), listOf(ParseWarning(e.message ?: "corrupt archive")), ParseStatus.CORRUPT) }
 
     fun parseEntries(entries: Map<String, ByteArray>, initialWarnings: MutableList<ParseWarning> = mutableListOf()): ParseResult {
+        return parseArchive(SdocxArchiveReader.Archive(entries, emptyMap()), initialWarnings)
+    }
+
+    private fun parseArchive(archive: SdocxArchiveReader.Archive, initialWarnings: MutableList<ParseWarning>): ParseResult {
+        val entries = archive.entries
         val warnings = initialWarnings; val end = entries.entries.firstOrNull { it.key.endsWith("end_tag.bin") }?.value?.let { EndTagParser.parse(it, warnings) }
         val registry = entries.entries.firstOrNull { it.key.endsWith("media/mediaInfo.dat") }?.value?.let { MediaRegistryParser.parse(it, warnings) } ?: emptyList()
         val pageIds = entries.entries.firstOrNull { it.key.endsWith("pageIdInfo.dat") }?.value?.let { PageIdParser.parse(it, warnings) } ?: emptyList()
         val noteData = entries.entries.firstOrNull { it.key.endsWith("note.note") }?.value?.let { NoteDocParser.parse(it, warnings) }
         val metadata = mergeMetadata(noteData?.metadata ?: DocumentMetadata(), end)
-        if (metadata.locked) return ParseResult(metadata, emptyList(), emptyList(), warnings + ParseWarning("This note is locked. Unlock it in Samsung Notes and export it again."), ParseStatus.LOCKED, noteData?.bodyText)
-        val media = registry.mapNotNull { binding -> val actual = entries[binding.archivePath]?.let { binding.archivePath to it } ?: entries.entries.firstOrNull { it.key.startsWith("media/") && it.key.substringAfterLast('/').endsWith(binding.filename) }?.let { it.key to it.value }; actual?.let { (path, data) -> MediaAsset(binding.bindId, binding.filename, data, binding.hash, binding.attachment == true, path) } ?: run { warnings += ParseWarning("Registered media is missing: ${binding.archivePath}", binding.archivePath); null } }
+        if (metadata.locked) { archive.close(); return ParseResult(metadata, emptyList(), emptyList(), warnings + ParseWarning("This note is locked. Unlock it in Samsung Notes and export it again."), ParseStatus.LOCKED, noteData?.bodyText) }
+        val media = registry.mapNotNull { binding -> val actual = archive.media[binding.archivePath]?.let { binding.archivePath to it } ?: archive.media.entries.firstOrNull { it.key.substringAfterLast('/').endsWith(binding.filename) }?.let { it.key to it.value }; actual?.let { (path, content) -> MediaAsset(binding.bindId, binding.filename, content, binding.hash, binding.attachment == true, path) } ?: run { warnings += ParseWarning("Registered media is missing: ${binding.archivePath}", binding.archivePath); null } }
         val pageEntries = entries.filterKeys { it.endsWith(".page") }.toList().sortedWith(compareBy<Pair<String, ByteArray>> { pair -> pageIds.indexOfFirst { id -> pair.first.contains(id) }.let { if (it < 0) Int.MAX_VALUE else it } }.thenBy { pair -> pair.first })
         val pages = pageEntries.take(SdocxLimits.MAX_NOTE_PAGES).mapIndexed { index, (path, bytes) -> PageParser.parse(index + 1, path, bytes, warnings) }
         if (pageEntries.size > SdocxLimits.MAX_NOTE_PAGES) warnings += ParseWarning("page count exceeds ${SdocxLimits.MAX_NOTE_PAGES}; remaining pages omitted")
