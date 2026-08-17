@@ -37,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -102,6 +103,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun NotesEscapeApp(incoming: Intent) {
     val context = LocalContext.current
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     var sources by remember { mutableStateOf(incomingSources(incoming)) }
     var folderImport by remember { mutableStateOf(false) }
@@ -142,7 +144,7 @@ private fun NotesEscapeApp(incoming: Intent) {
                     } catch (error: CancellationException) {
                         throw error
                     } catch (error: Exception) {
-                        ParseResult(metadata = com.notesescape.sdocx.core.DocumentMetadata(), pages = emptyList(), media = emptyList(), status = ParseStatus.CORRUPT, warnings = listOf(com.notesescape.sdocx.core.ParseWarning(error.message ?: context.getString(R.string.unknown_error))))
+                        ParseResult(metadata = com.notesescape.sdocx.core.DocumentMetadata(), pages = emptyList(), media = emptyList(), status = ParseStatus.CORRUPT, warnings = listOf(com.notesescape.sdocx.core.ParseWarning(error.message ?: resources.getString(R.string.unknown_error))))
                     }
                     withContext(Dispatchers.Main) {
                         preflight = preflight.add(parsed)
@@ -198,9 +200,9 @@ private fun NotesEscapeApp(incoming: Intent) {
                         ArchiveExporter.export(sourceSequence, output, format, attachments, originals, preserve) { index, _, report ->
                             scope.launch(Dispatchers.Main.immediate) { progress = progress.withReport(report, index, sources.size) }
                         }
-                    } ?: error(context.getString(R.string.destination_open_error))
+                    } ?: error(resources.getString(R.string.destination_open_error))
                     withContext(Dispatchers.Main) {
-                        result = archive.summary().copy(savedFile = destination.lastPathSegment ?: context.getString(R.string.saved_zip_default))
+                        result = archive.summary().copy(savedFile = destination.lastPathSegment ?: resources.getString(R.string.saved_zip_default))
                         stage = UiStage.RESULT
                     }
                 } catch (_: CancellationException) {
@@ -210,7 +212,7 @@ private fun NotesEscapeApp(incoming: Intent) {
                     }
                 } catch (error: Exception) {
                     withContext(Dispatchers.Main) {
-                        errorMessage = context.getString(R.string.unknown_error)
+                        errorMessage = resources.getString(R.string.unknown_error)
                         result = progress.summary()
                         stage = UiStage.RESULT
                     }
@@ -269,7 +271,7 @@ private fun NotesEscapeApp(incoming: Intent) {
                 item { Option(stringResource(R.string.preserve_handwriting), preserve) { preserve = it } }
                 item { Option(stringResource(R.string.include_attachments), attachments) { attachments = it } }
                 item { Option(stringResource(R.string.include_originals), originals) { originals = it } }
-                item { Button(enabled = sources.isNotEmpty(), onClick = { save.launch(context.getString(R.string.default_zip_filename)) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save_zip)) } }
+                item { Button(enabled = sources.isNotEmpty(), onClick = { save.launch(resources.getString(R.string.default_zip_filename)) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save_zip)) } }
             }
             if (stage == UiStage.CONVERTING) {
                 item { Text(stringResource(R.string.converting_progress, progress.index, progress.total, progress.current)) }

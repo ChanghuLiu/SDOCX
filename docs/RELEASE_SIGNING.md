@@ -27,9 +27,10 @@ This setting applies to the release build only. Third-party native libraries
 that were already stripped upstream cannot have native debug symbols recovered
 by this project.
 
-For versionCode 4, the native code is supplied by
-`androidx.graphics:graphics-path:1.0.1`, transitively through
-`androidx.compose.ui:ui-graphics:1.9.0`. It packages
+For versionCode 5, the native code is supplied by
+`androidx.graphics:graphics-path:1.1.0`, selected over the transitive 1.0.1
+request from `androidx.compose.ui:ui-graphics:1.11.4` (Compose BOM
+`2026.06.01`). It packages
 `libandroidx.graphics.path.so` for `arm64-v8a`, `armeabi-v7a`, `x86`, and
 `x86_64`. AGP reported that native debug metadata had already been stripped
 from each ABI, so no `native-debug-symbols.zip` was generated and no native

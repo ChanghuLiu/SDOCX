@@ -30,7 +30,7 @@ android {
         applicationId = "com.notesescape.sdocx"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
+        versionCode = 5
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -72,6 +72,7 @@ dependencies {
     implementation(project(":sdocx-core"))
     implementation(project(":export-core"))
     implementation("androidx.documentfile:documentfile:1.1.0")
+    implementation("androidx.graphics:graphics-path:1.1.0")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
