@@ -30,7 +30,7 @@ android {
         applicationId = "com.notesescape.sdocx"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -52,8 +52,7 @@ android {
             isDebuggable = false
             signingConfig = signingConfigs.findByName("release")
             optimization {
-                // V1 keeps optimization off until release-size and mapping policy are finalized.
-                enable = false
+                enable = true
             }
         }
     }
