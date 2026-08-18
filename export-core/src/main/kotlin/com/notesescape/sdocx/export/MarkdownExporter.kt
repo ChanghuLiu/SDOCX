@@ -19,7 +19,18 @@ object SafeNames {
         while (!used.add(key(result))) result = "$stem ($i)${if (ext.isEmpty()) "" else "." + ext}".also { i++ }
         return result
     }
-    fun uniquePath(base: String, used: MutableSet<String>, scope: String): String = unique(base, used, scope)
+    /** Returns a collision-free path component without reserving it; the ZIP writer reserves the full path. */
+    fun uniquePath(base: String, used: MutableSet<String>, scope: String): String {
+        val stem = base.substringBeforeLast('.', base)
+        val ext = base.substringAfterLast('.', "")
+        var result = base
+        var i = 2
+        while (used.contains("$scope/$result")) {
+            result = "$stem ($i)${if (ext.isEmpty()) "" else "." + ext}"
+            i++
+        }
+        return result
+    }
 }
 object MarkdownExporter {
     fun render(result: ParseResult, format: ExportFormat = ExportFormat.PORTABLE_MARKDOWN, attachmentDirectory: String? = null, includeMetadata: Boolean = true): String = buildString {
