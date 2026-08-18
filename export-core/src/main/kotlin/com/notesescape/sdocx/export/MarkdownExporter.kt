@@ -22,13 +22,13 @@ object SafeNames {
     fun uniquePath(base: String, used: MutableSet<String>, scope: String): String = unique(base, used, scope)
 }
 object MarkdownExporter {
-    fun render(result: ParseResult, format: ExportFormat = ExportFormat.PORTABLE_MARKDOWN, attachmentDirectory: String? = null): String = buildString {
-        if (format.isObsidian) {
+    fun render(result: ParseResult, format: ExportFormat = ExportFormat.PORTABLE_MARKDOWN, attachmentDirectory: String? = null, includeMetadata: Boolean = true): String = buildString {
+        if (format.isObsidian && includeMetadata) {
             appendLine("---"); appendLine("title: \"${yaml(result.metadata.title)}\"")
             result.metadata.created?.takeUnless { it.isBlank() }?.let { appendLine("created: \"${yaml(it)}\"") }
             result.metadata.modified?.takeUnless { it.isBlank() }?.let { appendLine("modified: \"${yaml(it)}\"") }
             appendLine("source: samsung-notes"); appendLine("source_format: sdocx"); appendLine("migration_status: complete"); appendLine("---"); appendLine()
-        } else {
+        } else if (format.isPortable) {
             // Retain the established Portable Markdown header for compatibility.
             appendLine("---"); appendLine("title: \"${yaml(result.metadata.title)}\"")
             result.metadata.created?.takeUnless { it.isBlank() }?.let { appendLine("created: \"${yaml(it)}\"") }
@@ -51,11 +51,11 @@ object MarkdownExporter {
                 is ImageElement -> result.media.firstOrNull { it.bindId == element.bindId }?.let { media ->
                     representedMedia += media.bindId
                     appendLine(mediaMarkdown(result.metadata.title, media, format, attachmentDirectory))
-                } ?: appendLine(attachmentLink("${attachmentDirectory ?: "assets/${SafeNames.file(result.metadata.title)}"}/${SafeNames.file(element.bindId)}", format, media = true))
+                } ?: appendLine("<!-- Image attachment unavailable: ${SafeNames.file(element.bindId)} -->")
                 is AttachmentElement -> result.media.firstOrNull { it.bindId == element.bindId }?.let { media ->
                     representedMedia += media.bindId
                     appendLine(mediaMarkdown(result.metadata.title, media, format, attachmentDirectory))
-                } ?: appendLine(attachmentLink("${attachmentDirectory ?: "assets/attachments"}/${SafeNames.file(element.bindId)}", format, media = false))
+                } ?: appendLine("<!-- Attachment unavailable: ${SafeNames.file(element.bindId)} -->")
                 is HandwritingElement -> if (emittedHandwritingPages.add(page.number)) appendLine(attachmentLink("${attachmentDirectory ?: "assets/${SafeNames.file(result.metadata.title)}"}/handwriting_page_${page.number.toString().padStart(2, '0')}.svg", format, media = true))
                 is UnknownElement -> appendLine("<!-- Unsupported object ${element.kind}; see migration report -->")
             }
@@ -88,10 +88,11 @@ object MarkdownExporter {
         val filename = SafeNames.file(media.filename)
         val kind = media.openStream().use { MediaType.detect(filename, it) }
         val folder = attachmentDirectory ?: if (kind == null) "assets/attachments" else "assets/${SafeNames.file(title)}"
+        if (format.isObsidian && kind == null) return "<!-- Attachment unavailable: $filename -->"
         return attachmentLink("$folder/$filename", format, kind?.startsWith("image/") == true)
     }
     private fun attachmentLink(path: String, format: ExportFormat, media: Boolean): String = if (format.isObsidian) {
-        "![[${path.removePrefix("Attachments/")}]]".let { if (media) it else "[[${path.removePrefix("Attachments/")}]]" }
+        "![[${path}]]".let { if (media) it else "[[${path}]]" }
     } else if (media) "![image]($path)" else "[Attachment]($path)"
     fun svg(element: HandwritingElement): String = buildString {
         val width = if (element.width.isFinite() && element.width > 0f) element.width else 1f; val height = if (element.height.isFinite() && element.height > 0f) element.height else 1f

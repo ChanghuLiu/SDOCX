@@ -62,6 +62,13 @@ class ExportTest {
         assertEquals("Meeting (2).md", SafeNames.unique("Meeting.md", used, "Notes/Work"))
         assertEquals("Meeting.md", SafeNames.unique("Meeting.md", used, "Notes/Personal"))
     }
+    @Test fun folderSummaryCountsNestedPathsAndTruncatesDeterministically() {
+        val locations = (1..10).map { SourceLocation(listOf("Folder-$it", "2026", "Meetings"), "A.sdocx") } +
+            listOf(SourceLocation(listOf("Personal", "Travel"), "Travel.sdocx"), SourceLocation(emptyList(), "Root.sdocx"))
+        val summary = SourceSummary.folderSummary(locations)
+        assertEquals(12, summary.noteCount); assertEquals(32, summary.folderCount); assertEquals(8, summary.topFolders.size)
+        assertEquals(listOf("Folder-1", "Folder-10", "Folder-2"), summary.topFolders.keys.take(3)); assertEquals(3, summary.omittedFolderCount)
+    }
     @Test fun obsidianGoldenLayoutUsesVaultRootLinksAndReport() {
         val source = SourceNote("Meeting.sdocx", java.io.File("../test-fixtures/bxff-samsung-notes-format/sdocxFiles/ThisIsTheTitle-1.sdocx").readBytes(), listOf("Work"))
         val out = ByteArrayOutputStream(); val archive = ArchiveExporter.export(sequenceOf(source), out, ExportFormat.OBSIDIAN_VAULT)
@@ -69,6 +76,22 @@ class ExportTest {
         assertTrue(names.any { it == "Notes/Work/${archive.reports.single().title}.md" || it.startsWith("Notes/Work/") })
         assertTrue(names.contains("_Notes Escape/migration-report.md")); assertTrue(names.contains("_Notes Escape/migration-report.json"))
         assertTrue(archive.reports.single().outputNotePath.startsWith("Notes/Work/"))
+    }
+    @Test fun metadataOptionControlsObsidianFrontMatterAndEscapesUnicode() {
+        val result = ParseResult(DocumentMetadata("Quote: \"مشروع 中文 😀\""), emptyList(), emptyList(), emptyList(), ParseStatus.SUCCESS)
+        val withMetadata = MarkdownExporter.render(result, ExportFormat.OBSIDIAN_VAULT, includeMetadata = true)
+        val withoutMetadata = MarkdownExporter.render(result, ExportFormat.OBSIDIAN_VAULT, includeMetadata = false)
+        assertTrue(withMetadata.startsWith("---")); assertTrue(withMetadata.contains("title: \"Quote: \\\"مشروع 中文 😀\\\"\""))
+        assertFalse(withoutMetadata.startsWith("---")); assertFalse(withoutMetadata.contains("migration_status"))
+    }
+    @Test fun everyObsidianWikilinkResolvesToZipEntry() {
+        val source = SourceNote("Meeting.sdocx", java.io.File("../test-fixtures/bxff-samsung-notes-format/sdocxFiles/ThisIsTheTitle-1.sdocx").readBytes(), listOf("工作", "会议"))
+        val out = ByteArrayOutputStream(); ArchiveExporter.export(sequenceOf(source), out, ExportOptions(ExportFormat.OBSIDIAN_VAULT))
+        val entries = mutableSetOf<String>(); val markdown = mutableListOf<String>()
+        ZipInputStream(ByteArrayInputStream(out.toByteArray())).use { zip -> while (true) { val entry = zip.nextEntry ?: break; val bytes = zip.readBytes(); entries += entry.name; if (entry.name.endsWith(".md") && entry.name.startsWith("Notes/")) markdown += String(bytes) } }
+        val links = markdown.flatMap { Regex("!\\[\\[(.+?)]]|(?<!\\!)\\[\\[(.+?)]]").findAll(it).map { match -> match.groupValues.drop(1).first { value -> value.isNotEmpty() } }.toList() }
+        // This fixture currently contains handwriting without a page object link; validate every emitted link when present.
+        links.forEach { assertTrue(entries.contains(it), "missing ZIP entry for $it; entries=$entries") }
     }
     @Test fun corruptFileIsolatedInBatch() { val sources = sequenceOf(SourceNote("valid.sdocx", java.io.File("../test-fixtures/bxff-samsung-notes-format/sdocxFiles/ThisIsTheTitle-1.sdocx").readBytes()), SourceNote("corrupt.sdocx", byteArrayOf(1, 2, 3)), SourceNote("valid2.sdocx", java.io.File("../test-fixtures/bxff-samsung-notes-format/sdocxFiles/ThisIsTheTitle-2.sdocx").readBytes())); val out = ByteArrayOutputStream(); val archive = ArchiveExporter.export(sources, out); assertEquals(3, archive.reports.size); assertEquals(ParseStatus.CORRUPT, archive.reports[1].status); assertTrue(archive.reports[0].status != ParseStatus.CORRUPT); assertTrue(archive.reports[2].status != ParseStatus.CORRUPT); assertTrue(out.size() > 0) }
     @Test fun mediaMagicValidation() { assertEquals("image/png", MediaType.detect("wrong.bin", byteArrayOf(0x89.toByte(), 0x50, 0x4e, 0x47))); assertEquals(null, MediaType.detect("file.unknown", byteArrayOf(1, 2, 3))) }

@@ -23,6 +23,17 @@ data class SourceNote(val filename: String, val bytes: ByteArray, val relativeDi
 }
 
 data class ExportedArchive(val reports: List<NoteReport>)
+{
+    fun summary(): ArchiveSummary = ArchiveSummary(
+        notesConverted = reports.count { it.status == ParseStatus.SUCCESS || it.status == ParseStatus.PARTIAL },
+        foldersPreserved = reports.mapNotNull { it.outputNotePath.substringBeforeLast('/', "").takeIf { path -> path.startsWith("Notes/") && path != "Notes" } }.toSet().size,
+        imagesMediaPreserved = reports.sumOf { it.images + it.attachments },
+        handwritingPagesPreserved = reports.sumOf { it.handwritingPages },
+        attachmentsPreserved = reports.sumOf { it.attachments },
+        partial = reports.count { it.status == ParseStatus.PARTIAL },
+        failed = reports.count { it.status == ParseStatus.CORRUPT || it.status == ParseStatus.FAILED || it.status == ParseStatus.UNSUPPORTED }
+    )
+}
 object MediaType {
     fun detect(filename: String, bytes: ByteArray): String? = when {
         bytes.startsWith(byteArrayOf(0xff.toByte(), 0xd8.toByte(), 0xff.toByte())) -> "image/jpeg"
@@ -58,7 +69,15 @@ object ArchiveExporter {
         includeOriginals: Boolean = true,
         preserveHandwriting: Boolean = true,
         onProgress: (index: Int, total: Int?, report: NoteReport) -> Unit = { _, _, _ -> }
+    ): ExportedArchive = export(sources, output, ExportOptions(format, includeAttachments, preserveHandwriting, includeOriginals), onProgress)
+
+    fun export(
+        sources: Sequence<ConversionSource>,
+        output: OutputStream,
+        options: ExportOptions,
+        onProgress: (index: Int, total: Int?, report: NoteReport) -> Unit = { _, _, _ -> }
     ): ExportedArchive {
+        val format = options.preset
         val reports = mutableListOf<NoteReport>(); val usedNotes = mutableSetOf<String>(); val usedEntries = mutableSetOf<String>()
         ZipOutputStream(output).use { zip -> sources.forEachIndexed { index, source ->
             val resultAndWarnings = try {
@@ -77,9 +96,9 @@ object ArchiveExporter {
             val noteName = SafeNames.unique(SafeNames.file(result.metadata.title) + ".md", usedNotes, noteParent)
             val notePath = "$noteParent/$noteName"
             val attachmentDirectory = if (format.isObsidian) (listOf("Attachments") + relativeDirs + noteName.removeSuffix(".md")).joinToString("/") else null
-            put(zip, usedEntries, notePath, MarkdownExporter.render(result, format, attachmentDirectory).toByteArray())
+            put(zip, usedEntries, notePath, MarkdownExporter.render(result, format, attachmentDirectory, options.includeMetadata).toByteArray())
             try {
-                if (includeAttachments) result.media.forEachIndexed { mediaIndex, media ->
+                if (options.includeAttachments) result.media.forEachIndexed { mediaIndex, media ->
                     val dir = SafeNames.file(noteName.removeSuffix(".md"))
                     val filename = SafeNames.file(media.filename, "asset_$mediaIndex")
                     val kind = media.openStream().use { MediaType.detect(filename, it) }
@@ -89,7 +108,7 @@ object ArchiveExporter {
             } finally {
                 result.media.forEach { it.close() }
             }
-            if (preserveHandwriting) result.pages.forEach { page ->
+            if (options.preserveHandwriting) result.pages.forEach { page ->
                 val handwriting = page.elements.filterIsInstance<HandwritingElement>()
                 if (handwriting.isNotEmpty()) {
                     val merged = handwriting.first().copy(
@@ -101,7 +120,7 @@ object ArchiveExporter {
                     put(zip, usedEntries, "$folder/handwriting_page_${page.number.toString().padStart(2, '0')}.svg", MarkdownExporter.svg(merged).toByteArray())
                 }
             }
-            if (includeOriginals && result.status != ParseStatus.FAILED) runCatching {
+            if (options.includeOriginals && result.status != ParseStatus.FAILED) runCatching {
                 source.openStream().use { input -> put(zip, usedEntries, "originals/${SafeNames.file(source.displayName)}", input) }
             }.onFailure { extraWarnings += it.message ?: "Unable to preserve original" }
             val noteReport = report(sourceLocation, notePath, attachmentDirectory, format, result, extraWarnings)

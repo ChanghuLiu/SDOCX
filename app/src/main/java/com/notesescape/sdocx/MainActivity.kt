@@ -50,6 +50,8 @@ import com.notesescape.sdocx.core.SdocxParser
 import com.notesescape.sdocx.export.ArchiveExporter
 import com.notesescape.sdocx.export.ConversionSource
 import com.notesescape.sdocx.export.ExportFormat
+import com.notesescape.sdocx.export.ExportOptions
+import com.notesescape.sdocx.export.ArchiveSummary
 import com.notesescape.sdocx.export.NoteReport
 import com.notesescape.sdocx.ui.theme.NotesEscapeSDOCXTheme
 import kotlinx.coroutines.CancellationException
@@ -71,7 +73,12 @@ private data class PreflightSummary(
     val corrupt: Int = 0,
     val text: Int = 0,
     val handwriting: Int = 0,
-    val media: Int = 0
+    val media: Int = 0,
+    val imagesMedia: Int = 0,
+    val handwritingPages: Int = 0,
+    val attachments: Int = 0,
+    val folderPaths: Set<String> = emptySet(),
+    val folderRows: Map<String, Int> = emptyMap()
 )
 
 private data class ConversionSummary(
@@ -79,6 +86,12 @@ private data class ConversionSummary(
     val partial: Int = 0,
     val locked: Int = 0,
     val corruptFailed: Int = 0,
+    val preset: ExportFormat = ExportFormat.PORTABLE_MARKDOWN,
+    val foldersPreserved: Int = 0,
+    val imagesMedia: Int = 0,
+    val handwritingPages: Int = 0,
+    val attachments: Int = 0,
+    val failed: Int = 0,
     val cancelled: Boolean = false,
     val savedFile: String? = null
 )
@@ -120,6 +133,7 @@ private fun NotesEscapeApp(incoming: Intent) {
     var preserve by remember { mutableStateOf(true) }
     var attachments by remember { mutableStateOf(true) }
     var originals by remember { mutableStateOf(true) }
+    var metadata by remember { mutableStateOf(true) }
     var activeJob by remember { mutableStateOf<Job?>(null) }
 
     fun startPreflight(selected: List<SafSource>, fromFolder: Boolean = folderImport) {
@@ -149,7 +163,7 @@ private fun NotesEscapeApp(incoming: Intent) {
                         ParseResult(metadata = com.notesescape.sdocx.core.DocumentMetadata(), pages = emptyList(), media = emptyList(), status = ParseStatus.CORRUPT, warnings = listOf(com.notesescape.sdocx.core.ParseWarning(error.message ?: resources.getString(R.string.unknown_error))))
                     }
                     withContext(Dispatchers.Main) {
-                        preflight = preflight.add(parsed)
+                        preflight = preflight.add(parsed, sourceInfo.relativeDirectory, folderImport)
                         progress = progress.copy(current = sourceInfo.displayName, index = index + 1)
                     }
                     parsed.media.forEach { it.close() }
@@ -188,6 +202,7 @@ private fun NotesEscapeApp(incoming: Intent) {
                 val completion = coroutineContext[Job]?.invokeOnCompletion { cancellation.set(true) }
                 try {
                     val temporaryArchive = File.createTempFile("notes-escape-", ".zip", conversionCacheDirectory(context))
+                    try {
                     val archive = FileOutputStream(temporaryArchive).use { output ->
                         val sourceSequence = sequence {
                             sources.forEach { sourceInfo ->
@@ -200,7 +215,7 @@ private fun NotesEscapeApp(incoming: Intent) {
                                 }
                             }
                         }
-                        ArchiveExporter.export(sourceSequence, output, format, attachments, originals, preserve) { index, _, report ->
+                        ArchiveExporter.export(sourceSequence, output, ExportOptions(format, attachments, preserve, originals, metadata)) { index, _, report ->
                             scope.launch(Dispatchers.Main.immediate) { progress = progress.withReport(report, index, sources.size) }
                         }
                     }
@@ -209,8 +224,11 @@ private fun NotesEscapeApp(incoming: Intent) {
                     } ?: error(resources.getString(R.string.destination_open_error))
                     temporaryArchive.delete()
                     withContext(Dispatchers.Main) {
-                        result = archive.summary().copy(savedFile = destination.lastPathSegment ?: resources.getString(R.string.saved_zip_default))
+                        result = archive.summary().toUiSummary(format).copy(savedFile = destination.lastPathSegment ?: resources.getString(R.string.saved_zip_default))
                         stage = UiStage.RESULT
+                    }
+                    } finally {
+                        temporaryArchive.delete()
                     }
                 } catch (_: CancellationException) {
                     withContext(Dispatchers.Main) {
@@ -260,13 +278,13 @@ private fun NotesEscapeApp(incoming: Intent) {
             item { Button(onClick = { multiple.launch(arrayOf("application/zip", "application/octet-stream")) }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.select_files)) } }
             item { OutlinedButton(onClick = { folder.launch(null) }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.select_folder)) } }
             item { Text(if (folderImport) stringResource(R.string.files_discovered, sources.size) else if (stage == UiStage.PREFLIGHT || sources.isNotEmpty()) pluralStringResource(R.plurals.files_selected_plural, sources.size, sources.size) else stringResource(R.string.empty_state)) }
-            item { Text(stringResource(R.string.folder_structure_help), color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            item { FolderStructureInfo(folderImport = folderImport, hasSources = sources.isNotEmpty()) }
             item { Text(stringResource(stage.stringRes), style = MaterialTheme.typography.titleLarge) }
             if (stage == UiStage.PREFLIGHT) {
                 item { Text(stringResource(R.string.scanning_notes, progress.index, sources.size)) }
             }
             if (sources.isNotEmpty() && stage != UiStage.SELECT && stage != UiStage.CONVERTING && stage != UiStage.RESULT) {
-                item { PreflightContent(preflight) }
+                item { PreflightContent(preflight, format, folderImport) }
             }
             if (stage == UiStage.OPTIONS) {
                 item { Text(stringResource(R.string.options_description)) }
@@ -276,11 +294,18 @@ private fun NotesEscapeApp(incoming: Intent) {
                         FilterChip(selected = format == ExportFormat.OBSIDIAN_VAULT, onClick = { format = ExportFormat.OBSIDIAN_VAULT }, label = { Text(stringResource(R.string.obsidian_vault)) })
                     }
                 }
-                if (format == ExportFormat.OBSIDIAN_VAULT) item { Option(stringResource(R.string.preserve_folder_structure), true) { } }
-                item { Option(stringResource(R.string.preserve_handwriting), preserve) { preserve = it } }
-                item { Option(stringResource(R.string.include_attachments), attachments) { attachments = it } }
+                if (format == ExportFormat.OBSIDIAN_VAULT) {
+                    item { Text(stringResource(R.string.obsidian_description)) }
+                    item { FolderStructureInfo(folderImport, sources.isNotEmpty()) }
+                    item { Option(stringResource(R.string.keep_images_attachments), attachments) { attachments = it } }
+                    item { Option(stringResource(R.string.convert_handwriting_svg), preserve) { preserve = it } }
+                    item { Option(stringResource(R.string.add_note_metadata), metadata) { metadata = it } }
+                } else {
+                    item { Option(stringResource(R.string.preserve_handwriting), preserve) { preserve = it } }
+                    item { Option(stringResource(R.string.include_attachments), attachments) { attachments = it } }
+                }
                 item { Option(stringResource(R.string.include_originals), originals) { originals = it } }
-                item { Button(enabled = sources.isNotEmpty(), onClick = { save.launch(resources.getString(R.string.default_zip_filename)) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save_zip)) } }
+                item { Button(enabled = sources.isNotEmpty(), onClick = { save.launch(resources.getString(if (format.isObsidian) R.string.default_obsidian_zip_filename else R.string.default_markdown_zip_filename)) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save_zip)) } }
             }
             if (stage == UiStage.CONVERTING) {
                 item { Text(stringResource(R.string.converting_progress, progress.index, progress.total, progress.current)) }
@@ -288,7 +313,7 @@ private fun NotesEscapeApp(incoming: Intent) {
                 item { OutlinedButton(onClick = ::cancel, Modifier.fillMaxWidth()) { Text(stringResource(R.string.cancel)) } }
             }
             if (stage == UiStage.RESULT) {
-                item { ResultContent(result) }
+                item { ResultContent(result, format, folderImport) }
                 errorMessage?.let { item { Text(stringResource(R.string.error_message, it), color = MaterialTheme.colorScheme.error) } }
             }
             if (stage == UiStage.SELECT && sources.isEmpty()) item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.select_empty_help)) }
@@ -311,26 +336,60 @@ private val UiStage.stringRes: Int
         UiStage.RESULT -> R.string.stage_result
     }
 
-@Composable private fun PreflightContent(summary: PreflightSummary) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(stringResource(R.string.preflight_summary))
-        Text(stringResource(R.string.preflight_readable, summary.readable))
-        Text(stringResource(R.string.preflight_locked, summary.locked))
-        Text(stringResource(R.string.preflight_corrupt, summary.corrupt))
-        Text(stringResource(R.string.preflight_text, summary.text))
-        Text(stringResource(R.string.preflight_handwriting, summary.handwriting))
-        Text(stringResource(R.string.preflight_media, summary.media))
+@Composable private fun FolderStructureInfo(folderImport: Boolean, hasSources: Boolean) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(stringResource(R.string.folder_structure_title))
+        Text(stringResource(if (folderImport && hasSources) R.string.folder_structure_preserved else R.string.folder_structure_unavailable), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (!folderImport && hasSources) Text(stringResource(R.string.folder_structure_use_folder), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
-@Composable private fun ResultContent(summary: ConversionSummary) {
+@Composable private fun PreflightContent(summary: PreflightSummary, format: ExportFormat, folderImport: Boolean) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(stringResource(R.string.result_summary))
+        Text(if (format.isObsidian) stringResource(R.string.obsidian_vault) else stringResource(R.string.preflight_summary))
+        if (format.isObsidian) {
+            Text(stringResource(R.string.vault_notes, summary.selected))
+            Text(stringResource(R.string.vault_folders, if (folderImport) summary.folderPaths.size else 0))
+            Text(stringResource(R.string.vault_images_media, summary.imagesMedia))
+            Text(stringResource(R.string.vault_handwriting, summary.handwritingPages))
+            Text(stringResource(R.string.vault_attachments, summary.attachments))
+            Text(stringResource(R.string.preflight_locked, summary.locked))
+            Text(stringResource(R.string.preflight_corrupt, summary.corrupt))
+            if (folderImport && summary.folderRows.isNotEmpty()) {
+                summary.folderRows.toSortedMap().entries.take(8).forEach { (folder, count) -> Text(stringResource(R.string.folder_summary_row, folder, count)) }
+                if (summary.folderRows.size > 8) Text(stringResource(R.string.more_folders, summary.folderRows.size - 8))
+            } else if (!folderImport) Text(stringResource(R.string.selected_files_root))
+        } else {
+            Text(stringResource(R.string.preflight_readable, summary.readable))
+            Text(stringResource(R.string.preflight_locked, summary.locked))
+            Text(stringResource(R.string.preflight_corrupt, summary.corrupt))
+            Text(stringResource(R.string.preflight_text, summary.text))
+            Text(stringResource(R.string.preflight_handwriting, summary.handwritingPages))
+            Text(stringResource(R.string.preflight_media, summary.media))
+        }
+    }
+}
+
+@Composable private fun ResultContent(summary: ConversionSummary, format: ExportFormat, folderImport: Boolean) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        if (format.isObsidian) {
+            Text(stringResource(R.string.obsidian_vault_ready), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.result_vault_notes, summary.completed))
+            if (folderImport) Text(stringResource(R.string.result_vault_folders, summary.foldersPreserved))
+            Text(stringResource(R.string.result_vault_images, summary.imagesMedia))
+            Text(stringResource(R.string.result_vault_handwriting, summary.handwritingPages))
+            Text(stringResource(R.string.result_vault_attachments, summary.attachments))
+            Text(stringResource(R.string.result_vault_partial, summary.partial))
+            Text(stringResource(R.string.result_vault_failed, summary.failed))
+            Text(stringResource(if (summary.failed > 0) R.string.vault_failed_message else if (summary.partial > 0) R.string.vault_warning_message else R.string.vault_ready_message))
+        } else Text(stringResource(R.string.result_summary))
         summary.savedFile?.let { Text(stringResource(R.string.saved_zip, it), color = MaterialTheme.colorScheme.primary) }
-        Text(stringResource(R.string.result_completed, summary.completed))
-        Text(stringResource(R.string.result_partial, summary.partial))
-        Text(stringResource(R.string.result_locked, summary.locked))
-        Text(stringResource(R.string.result_corrupt_failed, summary.corruptFailed))
+        if (!format.isObsidian) {
+            Text(stringResource(R.string.result_completed, summary.completed))
+            Text(stringResource(R.string.result_partial, summary.partial))
+            Text(stringResource(R.string.result_locked, summary.locked))
+            Text(stringResource(R.string.result_corrupt_failed, summary.corruptFailed))
+        }
         if (summary.cancelled) Text(stringResource(R.string.result_cancelled), color = MaterialTheme.colorScheme.error)
     }
 }
@@ -372,20 +431,31 @@ private fun PrivacyDialog(onDismiss: () -> Unit) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text(label); Switch(checked = checked, onCheckedChange = onChange) }
 }
 
-private fun PreflightSummary.add(result: ParseResult): PreflightSummary {
+private fun PreflightSummary.add(result: ParseResult, relativeDirectory: List<String>, folderImport: Boolean): PreflightSummary {
     val isCorrupt = result.status == ParseStatus.CORRUPT || result.status == ParseStatus.FAILED
     val hasText = result.topLevelText?.isNotBlank() == true || result.pages.any { page -> page.elements.any { it is RichTextElement && it.text.isNotBlank() } }
-    val hasHandwriting = result.pages.any { page -> page.elements.any { it is HandwritingElement && it.strokes.isNotEmpty() } }
+    val handwritingPages = result.pages.count { page -> page.elements.any { it is HandwritingElement && it.strokes.isNotEmpty() } }
     val hasMedia = result.media.isNotEmpty() || result.pages.any { page -> page.elements.any { it is ImageElement } }
+    val imageCount = result.pages.sumOf { page -> page.elements.count { it is ImageElement } } + result.media.count { it.filename.substringAfterLast('.').lowercase() in setOf("jpg", "jpeg", "png", "webp") }
+    val attachmentCount = result.pages.sumOf { page -> page.elements.count { it is com.notesescape.sdocx.core.AttachmentElement } } + result.media.count { it.filename.substringAfterLast('.').lowercase() !in setOf("jpg", "jpeg", "png", "webp") }
+    val paths = if (folderImport) relativeDirectory.runningFold(emptyList<String>()) { acc, segment -> acc + segment }.drop(1).map { it.joinToString("/") }.toSet() else emptySet()
+    val rows = if (folderImport && relativeDirectory.isNotEmpty()) folderRows(relativeDirectory) else emptyMap()
     return copy(
         readable = readable + if (!isCorrupt) 1 else 0,
         locked = locked + if (result.status == ParseStatus.LOCKED) 1 else 0,
         corrupt = corrupt + if (isCorrupt) 1 else 0,
         text = text + if (hasText) 1 else 0,
-        handwriting = handwriting + if (hasHandwriting) 1 else 0,
-        media = media + if (hasMedia) 1 else 0
+        handwriting = handwriting + if (handwritingPages > 0) 1 else 0,
+        media = media + if (hasMedia) 1 else 0,
+        imagesMedia = imagesMedia + imageCount + attachmentCount,
+        handwritingPages = this.handwritingPages + handwritingPages,
+        attachments = attachments + attachmentCount,
+        folderPaths = folderPaths + paths,
+        folderRows = (folderRows.keys + rows.keys).associateWith { key -> (folderRows[key] ?: 0) + (rows[key] ?: 0) }
     )
 }
+
+private fun folderRows(relativeDirectory: List<String>): Map<String, Int> = mapOf(relativeDirectory.first() to 1)
 
 private fun ConversionProgress.withReport(report: NoteReport, index: Int, total: Int): ConversionProgress {
     val completed = completed + if (report.status == ParseStatus.SUCCESS) 1 else 0
@@ -395,16 +465,19 @@ private fun ConversionProgress.withReport(report: NoteReport, index: Int, total:
     return copy(current = report.sourceFilename, index = index, total = total, completed = completed, partial = partial, locked = locked, corruptFailed = failed)
 }
 
-private fun ConversionProgress.summary() = ConversionSummary(completed, partial, locked, corruptFailed)
+private fun ConversionProgress.summary() = ConversionSummary(completed = completed, partial = partial, locked = locked, corruptFailed = corruptFailed, failed = corruptFailed)
 
-private fun com.notesescape.sdocx.export.ExportedArchive.summary(): ConversionSummary = reports.fold(ConversionSummary()) { summary, report ->
-    when (report.status) {
-        ParseStatus.SUCCESS -> summary.copy(completed = summary.completed + 1)
-        ParseStatus.PARTIAL -> summary.copy(partial = summary.partial + 1)
-        ParseStatus.LOCKED -> summary.copy(locked = summary.locked + 1)
-        ParseStatus.CORRUPT, ParseStatus.FAILED, ParseStatus.UNSUPPORTED -> summary.copy(corruptFailed = summary.corruptFailed + 1)
-    }
-}
+private fun ArchiveSummary.toUiSummary(preset: ExportFormat) = ConversionSummary(
+    completed = notesConverted - partial,
+    partial = partial,
+    corruptFailed = failed,
+    preset = preset,
+    foldersPreserved = foldersPreserved,
+    imagesMedia = imagesMediaPreserved,
+    handwritingPages = handwritingPagesPreserved,
+    attachments = attachmentsPreserved,
+    failed = failed
+)
 
 private fun displayName(uri: Uri): String = uri.lastPathSegment?.substringAfterLast('/')?.ifBlank { null } ?: "note.sdocx"
 

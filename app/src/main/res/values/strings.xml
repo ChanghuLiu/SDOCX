@@ -80,4 +80,17 @@ Contact: artbyte@126.com</string>
     <string name="obsidian_vault">Obsidian Vault</string>
     <string name="folder_structure_help">Folder structure is preserved when you use Select folder.</string>
     <string name="preserve_folder_structure">Preserve folder structure</string>
+    <string name="folder_structure_title">Folder structure</string>
+    <string name="folder_structure_preserved">✓ Preserved from selected folder</string>
+    <string name="folder_structure_unavailable">Not available for individual file selection</string>
+    <string name="folder_structure_use_folder">Use Select folder to preserve subfolders.</string>
+    <string name="obsidian_description">Creates Notes/, Attachments/, and migration reports in an Obsidian-ready ZIP.</string>
+    <string name="keep_images_attachments">Keep images and attachments</string>
+    <string name="convert_handwriting_svg">Convert handwriting to SVG</string>
+    <string name="add_note_metadata">Add note metadata</string>
+    <string name="vault_notes">Notes: %1$d</string><string name="vault_folders">Folders: %1$d</string><string name="vault_images_media">Images/media: %1$d</string><string name="vault_handwriting">Handwriting: %1$d</string><string name="vault_attachments">Attachments: %1$d</string>
+    <string name="selected_files_root">Selected files will be exported at the vault root.</string><string name="more_folders">+ %1$d more folders</string><string name="folder_summary_row">  %1$s    %2$d</string>
+    <string name="obsidian_vault_ready">Obsidian Vault ready</string><string name="result_vault_notes">%1$d notes converted</string><string name="result_vault_folders">%1$d folders preserved</string><string name="result_vault_images">%1$d images/media preserved</string><string name="result_vault_handwriting">%1$d handwriting pages preserved</string><string name="result_vault_attachments">%1$d attachments preserved</string><string name="result_vault_partial">%1$d partial</string><string name="result_vault_failed">%1$d failed</string>
+    <string name="vault_ready_message">Ready to extract and open as an Obsidian vault.</string><string name="vault_warning_message">Vault created with warnings. Review the migration report.</string><string name="vault_failed_message">Some notes could not be converted. Review the migration report.</string>
+    <string name="default_markdown_zip_filename">NotesEscape-Markdown.zip</string><string name="default_obsidian_zip_filename">NotesEscape-Obsidian-Vault.zip</string>
 </resources>
