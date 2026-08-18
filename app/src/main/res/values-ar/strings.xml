@@ -60,4 +60,5 @@
     <string name="destination_open_error">تعذر فتح الوجهة المحددة.</string>
     <string name="default_zip_filename">NotesEscape.zip</string>
     <plurals name="files_selected_plural"><item quantity="zero">لم يتم اختيار ملفات ‎.sdocx</item><item quantity="one">تم اختيار ملف ‎.sdocx واحد</item><item quantity="two">تم اختيار ملفي ‎.sdocx</item><item quantity="few">تم اختيار %1$d ملفات ‎.sdocx</item><item quantity="many">تم اختيار %1$d ملفاً ‎.sdocx</item><item quantity="other">تم اختيار %1$d ملف ‎.sdocx</item></plurals>
+    <string name="portable_markdown">Markdown محمول</string><string name="obsidian_vault">خزنة Obsidian</string><string name="folder_structure_help">يتم الحفاظ على بنية المجلدات عند اختيار «تحديد مجلد».</string><string name="preserve_folder_structure">الحفاظ على بنية المجلدات</string>
 </resources>

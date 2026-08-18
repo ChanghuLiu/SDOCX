@@ -76,4 +76,8 @@ Contact: artbyte@126.com</string>
         <item quantity="one">%1$d .sdocx file selected</item>
         <item quantity="other">%1$d .sdocx files selected</item>
     </plurals>
+    <string name="portable_markdown">Portable Markdown</string>
+    <string name="obsidian_vault">Obsidian Vault</string>
+    <string name="folder_structure_help">Folder structure is preserved when you use Select folder.</string>
+    <string name="preserve_folder_structure">Preserve folder structure</string>
 </resources>

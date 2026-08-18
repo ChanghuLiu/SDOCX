@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import com.notesescape.sdocx.export.ConversionSource
+import com.notesescape.sdocx.export.SourceLocation
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -22,8 +23,10 @@ class CachedSafSource(
     private val uri: Uri,
     override val displayName: String,
     private val cacheRoot: File,
-    private val cancelled: () -> Boolean = { false }
+    private val cancelled: () -> Boolean = { false },
+    private val relativeDirectory: List<String> = emptyList()
 ) : ConversionSource {
+    override val location get() = SourceLocation(relativeDirectory, displayName)
     private var cachedFile: File? = null
 
     override fun openStream(): InputStream {

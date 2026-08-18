@@ -60,4 +60,5 @@
     <string name="destination_open_error">No se puede abrir el destino seleccionado.</string>
     <string name="default_zip_filename">NotesEscape.zip</string>
     <plurals name="files_selected_plural"><item quantity="one">%1$d archivo .sdocx seleccionado</item><item quantity="other">%1$d archivos .sdocx seleccionados</item></plurals>
+    <string name="portable_markdown">Markdown portátil</string><string name="obsidian_vault">Bóveda de Obsidian</string><string name="folder_structure_help">La estructura de carpetas se conserva al usar Seleccionar carpeta.</string><string name="preserve_folder_structure">Conservar estructura de carpetas</string>
 </resources>

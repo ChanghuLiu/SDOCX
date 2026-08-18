@@ -59,6 +59,8 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
+import java.io.File
+import java.io.FileOutputStream
 
 private enum class UiStage { SELECT, PREFLIGHT, OPTIONS, CONVERTING, RESULT }
 
@@ -114,7 +116,7 @@ private fun NotesEscapeApp(incoming: Intent) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showAbout by remember { mutableStateOf(false) }
     var showPrivacy by remember { mutableStateOf(false) }
-    var format by remember { mutableStateOf(ExportFormat.CLEAN_MARKDOWN) }
+    var format by remember { mutableStateOf(ExportFormat.PORTABLE_MARKDOWN) }
     var preserve by remember { mutableStateOf(true) }
     var attachments by remember { mutableStateOf(true) }
     var originals by remember { mutableStateOf(true) }
@@ -138,7 +140,7 @@ private fun NotesEscapeApp(incoming: Intent) {
             try {
                 selected.forEachIndexed { index, sourceInfo ->
                     ensureActive()
-                    val source: ConversionSource = CachedSafSource(context.contentResolver, sourceInfo.uri, sourceInfo.displayName, conversionCacheDirectory(context), cancellation::get)
+                    val source: ConversionSource = CachedSafSource(context.contentResolver, sourceInfo.uri, sourceInfo.displayName, conversionCacheDirectory(context), cancellation::get, sourceInfo.relativeDirectory)
                     val parsed = try {
                         source.use { it.openStream().use(SdocxParser::parse) }
                     } catch (error: CancellationException) {
@@ -185,11 +187,12 @@ private fun NotesEscapeApp(incoming: Intent) {
             val conversionJob = scope.launch(Dispatchers.IO) {
                 val completion = coroutineContext[Job]?.invokeOnCompletion { cancellation.set(true) }
                 try {
-                    val archive = context.contentResolver.openOutputStream(destination)?.use { output ->
+                    val temporaryArchive = File.createTempFile("notes-escape-", ".zip", conversionCacheDirectory(context))
+                    val archive = FileOutputStream(temporaryArchive).use { output ->
                         val sourceSequence = sequence {
                             sources.forEach { sourceInfo ->
                                 ensureActive()
-                                val source = CachedSafSource(context.contentResolver, sourceInfo.uri, sourceInfo.displayName, conversionCacheDirectory(context), cancellation::get)
+                                val source = CachedSafSource(context.contentResolver, sourceInfo.uri, sourceInfo.displayName, conversionCacheDirectory(context), cancellation::get, sourceInfo.relativeDirectory)
                                 try {
                                     yield(source)
                                 } finally {
@@ -200,7 +203,11 @@ private fun NotesEscapeApp(incoming: Intent) {
                         ArchiveExporter.export(sourceSequence, output, format, attachments, originals, preserve) { index, _, report ->
                             scope.launch(Dispatchers.Main.immediate) { progress = progress.withReport(report, index, sources.size) }
                         }
+                    }
+                    context.contentResolver.openOutputStream(destination)?.use { output ->
+                        temporaryArchive.inputStream().use { it.copyTo(output) }
                     } ?: error(resources.getString(R.string.destination_open_error))
+                    temporaryArchive.delete()
                     withContext(Dispatchers.Main) {
                         result = archive.summary().copy(savedFile = destination.lastPathSegment ?: resources.getString(R.string.saved_zip_default))
                         stage = UiStage.RESULT
@@ -253,6 +260,7 @@ private fun NotesEscapeApp(incoming: Intent) {
             item { Button(onClick = { multiple.launch(arrayOf("application/zip", "application/octet-stream")) }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.select_files)) } }
             item { OutlinedButton(onClick = { folder.launch(null) }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.select_folder)) } }
             item { Text(if (folderImport) stringResource(R.string.files_discovered, sources.size) else if (stage == UiStage.PREFLIGHT || sources.isNotEmpty()) pluralStringResource(R.plurals.files_selected_plural, sources.size, sources.size) else stringResource(R.string.empty_state)) }
+            item { Text(stringResource(R.string.folder_structure_help), color = MaterialTheme.colorScheme.onSurfaceVariant) }
             item { Text(stringResource(stage.stringRes), style = MaterialTheme.typography.titleLarge) }
             if (stage == UiStage.PREFLIGHT) {
                 item { Text(stringResource(R.string.scanning_notes, progress.index, sources.size)) }
@@ -264,10 +272,11 @@ private fun NotesEscapeApp(incoming: Intent) {
                 item { Text(stringResource(R.string.options_description)) }
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = format == ExportFormat.CLEAN_MARKDOWN, onClick = { format = ExportFormat.CLEAN_MARKDOWN }, label = { Text(stringResource(R.string.clean_markdown)) })
-                        FilterChip(selected = format == ExportFormat.OBSIDIAN_RICH, onClick = { format = ExportFormat.OBSIDIAN_RICH }, label = { Text(stringResource(R.string.obsidian_rich)) })
+                        FilterChip(selected = format == ExportFormat.PORTABLE_MARKDOWN, onClick = { format = ExportFormat.PORTABLE_MARKDOWN }, label = { Text(stringResource(R.string.portable_markdown)) })
+                        FilterChip(selected = format == ExportFormat.OBSIDIAN_VAULT, onClick = { format = ExportFormat.OBSIDIAN_VAULT }, label = { Text(stringResource(R.string.obsidian_vault)) })
                     }
                 }
+                if (format == ExportFormat.OBSIDIAN_VAULT) item { Option(stringResource(R.string.preserve_folder_structure), true) { } }
                 item { Option(stringResource(R.string.preserve_handwriting), preserve) { preserve = it } }
                 item { Option(stringResource(R.string.include_attachments), attachments) { attachments = it } }
                 item { Option(stringResource(R.string.include_originals), originals) { originals = it } }

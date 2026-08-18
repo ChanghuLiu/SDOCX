@@ -60,4 +60,5 @@
     <string name="destination_open_error">선택한 저장 위치를 열 수 없습니다.</string>
     <string name="default_zip_filename">NotesEscape.zip</string>
     <plurals name="files_selected_plural"><item quantity="one">.sdocx 파일 1개 선택됨</item><item quantity="other">.sdocx 파일 %1$d개 선택됨</item></plurals>
+    <string name="portable_markdown">휴대용 Markdown</string><string name="obsidian_vault">Obsidian 보관함</string><string name="folder_structure_help">폴더 선택을 사용하면 폴더 구조가 보존됩니다.</string><string name="preserve_folder_structure">폴더 구조 보존</string>
 </resources>

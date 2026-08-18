@@ -1,6 +1,8 @@
 # Notes Escape: SDOCX
 
-Notes Escape: SDOCX is a local Android V1 release candidate for converting Samsung Notes `.sdocx` exports into Markdown/Obsidian-compatible ZIP archives. It uses Android Storage Access Framework streams and has no account, server, analytics, ads, or network processing.
+Notes Escape: SDOCX is a local Android migration tool for converting Samsung Notes `.sdocx` exports into Portable Markdown or an Obsidian Vault ZIP. It uses Android Storage Access Framework streams and has no account, server, analytics, ads, or network processing.
+
+Use **Select folder** to preserve the selected filesystem hierarchy beneath `Notes/` and `Attachments/`. Selecting individual files cannot reliably recover their original folders, so those files are exported at the root. This is filesystem hierarchy preservation; it does not claim Samsung Notes internal notebook/folder recovery. See [docs/OBSIDIAN_EXPORT.md](docs/OBSIDIAN_EXPORT.md).
 
 Build with `./gradlew test`, `./gradlew lint`, and `./gradlew assembleDebug`.
 

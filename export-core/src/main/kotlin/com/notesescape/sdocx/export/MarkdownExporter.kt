@@ -2,17 +2,39 @@ package com.notesescape.sdocx.export
 
 import com.notesescape.sdocx.core.*
 
-enum class ExportFormat { CLEAN_MARKDOWN, OBSIDIAN_RICH }
+enum class ExportFormat {
+    PORTABLE_MARKDOWN, OBSIDIAN_VAULT,
+    @Deprecated("Use PORTABLE_MARKDOWN") CLEAN_MARKDOWN,
+    @Deprecated("Use OBSIDIAN_VAULT") OBSIDIAN_RICH;
+    val isObsidian get() = this == OBSIDIAN_VAULT || this == OBSIDIAN_RICH
+    val isPortable get() = !isObsidian
+}
 object SafeNames {
-    fun file(value: String, fallback: String = "Untitled"): String { val s = value.replace(Regex("[\\x00-\\x1f<>:\"/\\\\|?*]"), "_").trim().trimEnd('.'); return s.ifBlank { fallback }.take(180) }
-    fun unique(base: String, used: MutableSet<String>): String { val stem = base.substringBeforeLast('.', base); val ext = base.substringAfterLast('.', ""); var result = base; var i = 2; while (!used.add(result)) result = "$stem ($i)${if (ext.isEmpty()) "" else "." + ext}".also { i++ }; return result }
+    fun file(value: String, fallback: String = "Untitled"): String = PathSanitizer.segment(value, fallback)
+    fun unique(base: String, used: MutableSet<String>): String = unique(base, used, "")
+    fun unique(base: String, used: MutableSet<String>, scope: String): String {
+        val key = { name: String -> if (scope.isEmpty()) name else "$scope/$name" }
+        val stem = base.substringBeforeLast('.', base); val ext = base.substringAfterLast('.', "")
+        var result = base; var i = 2
+        while (!used.add(key(result))) result = "$stem ($i)${if (ext.isEmpty()) "" else "." + ext}".also { i++ }
+        return result
+    }
+    fun uniquePath(base: String, used: MutableSet<String>, scope: String): String = unique(base, used, scope)
 }
 object MarkdownExporter {
-    fun render(result: ParseResult, format: ExportFormat = ExportFormat.CLEAN_MARKDOWN): String = buildString {
-        appendLine("---"); appendLine("title: \"${yaml(result.metadata.title)}\"")
-        result.metadata.created?.let { appendLine("created: \"${yaml(it)}\"") }; result.metadata.modified?.let { appendLine("modified: \"${yaml(it)}\"") }
-        appendLine("source: \"Samsung Notes\""); appendLine("source_format: \"sdocx\""); result.metadata.appVersion?.let { appendLine("source_app_version: \"${yaml(it)}\"") }
-        result.metadata.formatVersion?.let { appendLine("source_format_version: $it") }; appendLine("direction: \"${result.metadata.direction}\""); appendLine("---"); appendLine()
+    fun render(result: ParseResult, format: ExportFormat = ExportFormat.PORTABLE_MARKDOWN, attachmentDirectory: String? = null): String = buildString {
+        if (format.isObsidian) {
+            appendLine("---"); appendLine("title: \"${yaml(result.metadata.title)}\"")
+            result.metadata.created?.takeUnless { it.isBlank() }?.let { appendLine("created: \"${yaml(it)}\"") }
+            result.metadata.modified?.takeUnless { it.isBlank() }?.let { appendLine("modified: \"${yaml(it)}\"") }
+            appendLine("source: samsung-notes"); appendLine("source_format: sdocx"); appendLine("migration_status: complete"); appendLine("---"); appendLine()
+        } else {
+            // Retain the established Portable Markdown header for compatibility.
+            appendLine("---"); appendLine("title: \"${yaml(result.metadata.title)}\"")
+            result.metadata.created?.takeUnless { it.isBlank() }?.let { appendLine("created: \"${yaml(it)}\"") }
+            result.metadata.modified?.takeUnless { it.isBlank() }?.let { appendLine("modified: \"${yaml(it)}\"") }
+            appendLine("source: \"Samsung Notes\""); appendLine("source_format: \"sdocx\""); appendLine("direction: \"${result.metadata.direction}\""); appendLine("---"); appendLine()
+        }
         val top = result.topLevelText?.trim().takeUnless { it.isNullOrBlank() }
         if (result.topLevelElements.isNotEmpty()) {
             result.topLevelElements.forEach { appendLine(formatText(it, format)) }
@@ -28,17 +50,17 @@ object MarkdownExporter {
                 is RichTextElement -> appendLine(formatText(element, format))
                 is ImageElement -> result.media.firstOrNull { it.bindId == element.bindId }?.let { media ->
                     representedMedia += media.bindId
-                    appendLine(mediaMarkdown(result.metadata.title, media))
-                } ?: appendLine("![[assets/${SafeNames.file(result.metadata.title)}/${SafeNames.file(element.bindId)}]]")
+                    appendLine(mediaMarkdown(result.metadata.title, media, format, attachmentDirectory))
+                } ?: appendLine(attachmentLink("${attachmentDirectory ?: "assets/${SafeNames.file(result.metadata.title)}"}/${SafeNames.file(element.bindId)}", format, media = true))
                 is AttachmentElement -> result.media.firstOrNull { it.bindId == element.bindId }?.let { media ->
                     representedMedia += media.bindId
-                    appendLine(mediaMarkdown(result.metadata.title, media))
-                } ?: appendLine("[Attachment](assets/attachments/${SafeNames.file(element.bindId)})")
-                is HandwritingElement -> if (emittedHandwritingPages.add(page.number)) appendLine("![[assets/${SafeNames.file(result.metadata.title)}/handwriting_page_${page.number.toString().padStart(2, '0')}.svg]]")
+                    appendLine(mediaMarkdown(result.metadata.title, media, format, attachmentDirectory))
+                } ?: appendLine(attachmentLink("${attachmentDirectory ?: "assets/attachments"}/${SafeNames.file(element.bindId)}", format, media = false))
+                is HandwritingElement -> if (emittedHandwritingPages.add(page.number)) appendLine(attachmentLink("${attachmentDirectory ?: "assets/${SafeNames.file(result.metadata.title)}"}/handwriting_page_${page.number.toString().padStart(2, '0')}.svg", format, media = true))
                 is UnknownElement -> appendLine("<!-- Unsupported object ${element.kind}; see migration report -->")
             }
         }; appendLine() }
-        result.media.filter { it.bindId !in representedMedia }.forEach { appendLine(mediaMarkdown(result.metadata.title, it)) }
+        result.media.filter { it.bindId !in representedMedia }.forEach { appendLine(mediaMarkdown(result.metadata.title, it, format, attachmentDirectory)) }
         if (result.media.any { it.bindId !in representedMedia }) appendLine()
     }
     private fun formatText(e: RichTextElement, format: ExportFormat): String {
@@ -55,23 +77,22 @@ object MarkdownExporter {
     private fun renderSpan(span: RichTextSpan, format: ExportFormat): String {
         var value = escapePlain(span.text)
         if (span.bold) value = "**$value**"; if (span.italic) value = "*$value*"; if (span.strike) value = "~~$value~~"
-        if (span.underline && format == ExportFormat.OBSIDIAN_RICH) value = "<u>$value</u>"
+        if (span.underline && format.isObsidian) value = "<u>$value</u>"
         return span.link?.let { "[${value.replace("]", "\\]")}](${escapeUrl(it)})" } ?: value
     }
     private fun escapePlain(value: String): String = value.replace("\\", "\\\\").replace("`", "\\`").replace("\r\n", "\n")
     private fun escapeUrl(value: String): String = value.replace("\\", "%5C").replace("(", "%28").replace(")", "%29").replace(" ", "%20")
     private fun yaml(value: String) = value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
     private fun normalize(value: String) = value.replace("\r\n", "\n").trim()
-    private fun mediaMarkdown(title: String, media: MediaAsset): String {
+    private fun mediaMarkdown(title: String, media: MediaAsset, format: ExportFormat, attachmentDirectory: String?): String {
         val filename = SafeNames.file(media.filename)
         val kind = media.openStream().use { MediaType.detect(filename, it) }
-        val folder = if (kind == null) "assets/attachments" else "assets/${SafeNames.file(title)}"
-        return if (kind?.startsWith("image/") == true) {
-            "![[${folder}/${filename}]]"
-        } else {
-            "[Attachment](${folder}/${filename})"
-        }
+        val folder = attachmentDirectory ?: if (kind == null) "assets/attachments" else "assets/${SafeNames.file(title)}"
+        return attachmentLink("$folder/$filename", format, kind?.startsWith("image/") == true)
     }
+    private fun attachmentLink(path: String, format: ExportFormat, media: Boolean): String = if (format.isObsidian) {
+        "![[${path.removePrefix("Attachments/")}]]".let { if (media) it else "[[${path.removePrefix("Attachments/")}]]" }
+    } else if (media) "![image]($path)" else "[Attachment]($path)"
     fun svg(element: HandwritingElement): String = buildString {
         val width = if (element.width.isFinite() && element.width > 0f) element.width else 1f; val height = if (element.height.isFinite() && element.height > 0f) element.height else 1f
         append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"$width\" height=\"$height\" viewBox=\"0 0 $width $height\" fill=\"none\">")

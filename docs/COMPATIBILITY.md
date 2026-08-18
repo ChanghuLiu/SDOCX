@@ -39,3 +39,8 @@
 - Exact compatibility of every Samsung Notes Android/mobile binary object variant.
 - All rich-text, image, audio, PDF, video, table, formula, and custom object variants.
 - Locked/encrypted exports from every Samsung Notes version; V1 never decrypts them.
+# V1.1 export behavior
+
+The Obsidian Vault preset produces a ZIP with `Notes/`, `Attachments/`, and `_Notes Escape/`. Folder hierarchy comes from the filesystem tree selected through Android's **Select folder** action. Multi-selected individual files are intentionally flattened to the root because opaque URI strings are not a reliable relative path.
+
+The export does not claim Samsung Notes internal notebook/folder organization. Portable Markdown stays standard Markdown; Obsidian uses vault-root-relative wikilinks. See [OBSIDIAN_EXPORT.md](OBSIDIAN_EXPORT.md) for layout and limitations.
