@@ -11,8 +11,8 @@ Release preparation for the existing Closed Testing track.
 ## Artifacts
 
 - AAB: `app/build/outputs/bundle/release/app-release.aab`
-- AAB size: 3,511,374 bytes
-- AAB SHA-256: `d65a766926ea74d2031b55bb21602252f5cc4031b1a2769b0174cb5c778fd0b3`
+- AAB size: 3,511,372 bytes
+- AAB SHA-256: `92c086052de81342cfa591d394ae34856f48f50809f262fe35e303d141cfbdde`
 - APK: `app/build/outputs/apk/release/app-release.apk`
 - APK size: 2,001,119 bytes
 - Release certificate SHA-256:
