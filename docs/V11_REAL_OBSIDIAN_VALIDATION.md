@@ -60,8 +60,9 @@ plain-text, and rich-text cases. They were not copied into the repository.
   completed before a meaningful cancellation window appeared. The cache-first
   implementation has `try/finally` cleanup and the existing automated tests
   cover archive behavior.
-- Actual desktop Obsidian open: not run; no existing desktop Obsidian
-  installation was detected, and no third-party software was installed.
+- Actual desktop Obsidian open: NOT RUN. No Obsidian executable, desktop entry,
+  official AppImage, or local package was present on the Ubuntu host. No
+  third-party software was installed.
 
 ## Archive layout and caveats
 
@@ -78,6 +79,8 @@ notebook organization was not inferred or claimed.
 ## Follow-up
 
 On a device where DocumentsUI permits multi-select, repeat the individual-file
-case and confirm root-level `Notes/` output. Open the extracted archive in
-Obsidian Desktop and check note opening, image rendering, SVG rendering, PDF
-opening, and Chinese/Arabic text display.
+case and confirm root-level `Notes/` output. If an official Obsidian Desktop
+installation becomes available, open this extracted vault
+(`/tmp/notes-escape-v11-validation.EjBRot/fixed-vault`) without Sync or plugins
+and check note opening, image rendering, SVG rendering, PDF opening, YAML
+properties, and Chinese/Arabic text display.
