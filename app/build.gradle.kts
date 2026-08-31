@@ -8,13 +8,14 @@ plugins {
 
 private val externalSigningFile = project.file(System.getProperty("user.home"))
     .resolve(".config/notes-escape/signing.properties")
+check(externalSigningFile.isFile) {
+    "Release signing requires the secure file at ${externalSigningFile.absolutePath}"
+}
 private val externalSigningProperties = Properties().also { properties ->
-    if (externalSigningFile.isFile) {
-        FileInputStream(externalSigningFile).use { properties.load(it) }
-        val required = listOf("storeFile", "keyAlias", "storePassword", "keyPassword")
-        require(required.all { !properties.getProperty(it).isNullOrBlank() }) {
-            "External release signing configuration is incomplete"
-        }
+    FileInputStream(externalSigningFile).use { properties.load(it) }
+    val required = listOf("storeFile", "keyAlias", "storePassword", "keyPassword")
+    require(required.all { !properties.getProperty(it).isNullOrBlank() }) {
+        "External release signing configuration is incomplete"
     }
 }
 
@@ -30,27 +31,25 @@ android {
         applicationId = "com.notesescape.sdocx"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.1"
+        versionCode = 8
+        versionName = "1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
-        if (externalSigningFile.isFile) {
-            create("release") {
-                storeFile = file(externalSigningProperties.getProperty("storeFile"))
-                storePassword = externalSigningProperties.getProperty("storePassword")
-                keyAlias = externalSigningProperties.getProperty("keyAlias")
-                keyPassword = externalSigningProperties.getProperty("keyPassword")
-            }
+        create("release") {
+            storeFile = file(externalSigningProperties.getProperty("storeFile"))
+            storePassword = externalSigningProperties.getProperty("storePassword")
+            keyAlias = externalSigningProperties.getProperty("keyAlias")
+            keyPassword = externalSigningProperties.getProperty("keyPassword")
         }
     }
 
     buildTypes {
         release {
             isDebuggable = false
-            signingConfig = signingConfigs.findByName("release")
+            signingConfig = signingConfigs.getByName("release")
             optimization {
                 enable = true
             }

@@ -66,20 +66,20 @@
     <string name="support_email">launchcircle.server@gmail.com</string>
     <string name="send_feedback">Enviar feedback</string>
     <string name="feedback_subject">Feedback de teste do Notes Escape SDOCX</string>
-    <string name="feedback_body">Versão da aplicação: %1$s
+    <string name="feedback_body">Versão do app: %1$s
 Versão do Android: %2$s
 Fabricante/modelo do telefone: %3$s
 
-Quantos ficheiros .sdocx testou?
-Ficheiro único ou pasta?
+Quantos arquivos .sdocx você testou?
+Arquivo único ou pasta?
 A conversão foi concluída?
 O conteúdo Markdown está correto?
 Os anexos foram preservados?
 O ZIP abriu corretamente?
-Resultado da importação/utilização no Obsidian:
-Ficheiros parciais/bloqueados/com falha:
+Resultado da importação/uso no Obsidian:
+Arquivos parciais/bloqueados/com falha:
 Problema ou sugestão:</string>
-    <string name="no_email_app">Não está disponível uma aplicação de e-mail compatível.</string>
+    <string name="no_email_app">Nenhum app de e-mail compatível está disponível.</string>
     <string name="open_output">Abrir ZIP</string>
-    <string name="no_output_app">Nenhuma aplicação compatível conseguiu abrir este ZIP.</string>
+    <string name="no_output_app">Nenhum app compatível conseguiu abrir este ZIP.</string>
 </resources>

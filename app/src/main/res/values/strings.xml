@@ -30,7 +30,7 @@ Original .sdocx files can be preserved in the migration ZIP.</string>
     <string name="privacy_title">Privacy</string>
     <string name="privacy_body">Conversion runs locally on this device. Files are not uploaded or shared. There is no account, advertising, analytics, backend, or Internet permission. You choose the source files and ZIP destination with Android’s file picker. Temporary cache files may exist during conversion and are cleaned on completion, cancellation, failure, and app startup.
 
-Contact: artbyte@126.com</string>
+Contact: launchcircle.server@gmail.com</string>
     <string name="select_files">Select .sdocx files</string>
     <string name="select_folder">Select folder</string>
     <string name="empty_state">No .sdocx files selected</string>
@@ -93,4 +93,23 @@ Contact: artbyte@126.com</string>
     <string name="obsidian_vault_ready">Obsidian Vault ready</string><string name="result_vault_notes">%1$d notes converted</string><string name="result_vault_folders">%1$d folders preserved</string><string name="result_vault_images">%1$d images/media preserved</string><string name="result_vault_handwriting">%1$d handwriting pages preserved</string><string name="result_vault_attachments">%1$d attachments preserved</string><string name="result_vault_partial">%1$d partial</string><string name="result_vault_failed">%1$d failed</string>
     <string name="vault_ready_message">Ready to extract and open as an Obsidian vault.</string><string name="vault_warning_message">Vault created with warnings. Review the migration report.</string><string name="vault_failed_message">Some notes could not be converted. Review the migration report.</string>
     <string name="default_markdown_zip_filename">NotesEscape-Markdown.zip</string><string name="default_obsidian_zip_filename">NotesEscape-Obsidian-Vault.zip</string>
+    <string name="support_email">launchcircle.server@gmail.com</string>
+    <string name="send_feedback">Send Feedback</string>
+    <string name="feedback_subject">Notes Escape SDOCX testing feedback</string>
+    <string name="feedback_body">App version: %1$s
+Android version: %2$s
+Phone manufacturer/model: %3$s
+
+How many .sdocx files did you test?
+Single file or folder?
+Conversion completed?
+Markdown content correct?
+Attachments preserved?
+ZIP opened correctly?
+Obsidian import/use result:
+Partial / locked / failed files:
+Problem or suggestion:</string>
+    <string name="no_email_app">No compatible email app is available.</string>
+    <string name="open_output">Open ZIP</string>
+    <string name="no_output_app">No compatible app could open this ZIP.</string>
 </resources>

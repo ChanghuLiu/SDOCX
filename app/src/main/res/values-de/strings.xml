@@ -1,0 +1,129 @@
+<resources>
+    <string name="app_name">Notizen-Export: SDOCX</string>
+    <string name="processed_locally">Vollständig auf diesem Gerät verarbeitet</string>
+    <string name="no_upload_account">Kein Upload • Kein Konto</string>
+    <string name="home_description">Samsung-Notes-.sdocx-Exporte in ein portables Markdown-/Obsidian-kompatibles ZIP-Archiv umwandeln.</string>
+    <string name="about_help">Über / Hilfe</string>
+    <string name="privacy">Datenschutz</string>
+    <string name="dismiss">Schließen</string>
+    <string name="about_description">Notes Escape ist ein unabhängiges lokales Migrationstool für Samsung-Notes-.sdocx-Exporte.</string>
+    <string name="about_what_is_title">Was ist .sdocx?</string>
+    <string name="about_what_is_body">.sdocx ist das Exportformat von Samsung Notes. Wähle Dateien oder einen Ordner aus, um ein portables ZIP-Archiv zu erstellen.</string>
+    <string name="about_export_title">Aus Samsung Notes exportieren</string>
+    <string name="about_export_steps">Samsung Notes
+→ Eine Notiz öffnen oder auswählen
+→ Als Datei speichern / Teilen
+→ Samsung-Notes-Datei
+→ .sdocx
+Menübezeichnungen können je nach Samsung-Notes-Version abweichen. Wähle nicht DOCX oder PDF, wenn du SDOCX konvertieren möchtest.</string>
+    <string name="about_preserves_title">Was diese App bewahrt</string>
+    <string name="about_preserves_body">Eingegebener Text, Unicode- und RTL-Text, vorhandene Bilder und Medien, Handschrift als SVG, sofern unterstützt, Anhänge und optional originale .sdocx-Dateien.</string>
+    <string name="about_limitations_title">Bekannte Einschränkungen</string>
+    <string name="about_limitations_body">Einige Samsung-Notes-Formatierungen werden möglicherweise nicht exakt konvertiert.
+Komplexe Tabellen, Formeln, proprietäre Objekte sowie neue oder alte SDOCX-Varianten können teilweise konvertiert werden.
+Gesperrte Notizen müssen vor dem Export in Samsung Notes entsperrt werden.
+Das ursprüngliche Seitenlayout wird nicht garantiert.
+Die Unterstützung für Rich-Text hängt von der Samsung-Notes-Version ab.
+Originale .sdocx-Dateien können im Migrations-ZIP erhalten bleiben.</string>
+    <string name="independent_disclaimer">Notes Escape ist ein unabhängiges Migrationstool und steht in keiner Verbindung zu Samsung, wird von Samsung nicht unterstützt und nicht gesponsert.</string>
+    <string name="privacy_title">Datenschutz</string>
+    <string name="privacy_body">Die Konvertierung erfolgt lokal auf diesem Gerät. Dateien werden weder hochgeladen noch geteilt. Es gibt kein Konto, keine Werbung, keine Analyse, kein Backend und keine Internetberechtigung. Du wählst Quelldateien und ZIP-Ziel mit dem Android-Dateiauswahldialog. Temporäre Cache-Dateien können während der Konvertierung entstehen und werden nach Abschluss, Abbruch, Fehlern sowie beim App-Start bereinigt.
+Kontakt: launchcircle.server@gmail.com</string>
+    <string name="select_files">.sdocx-Dateien auswählen</string>
+    <string name="select_folder">Ordner auswählen</string>
+    <string name="empty_state">Keine .sdocx-Dateien ausgewählt</string>
+    <string name="select_empty_help">Wähle mindestens einen Samsung-Notes-Export aus, um zu beginnen.</string>
+    <string name="stage_select">AUSWÄHLEN</string>
+    <string name="stage_preflight">VORPRÜFUNG</string>
+    <string name="stage_options">OPTIONEN</string>
+    <string name="stage_converting">KONVERTIERUNG</string>
+    <string name="stage_result">ERGEBNIS</string>
+    <string name="files_selected">%1$d .sdocx-Datei(en) ausgewählt</string>
+    <string name="files_discovered">Entdeckte .sdocx-Dateien: %1$d</string>
+    <string name="scanning_notes">Notiz %1$d von %2$d wird geprüft</string>
+    <string name="preflight_summary">Importdiagnose</string>
+    <string name="preflight_readable">Lesbare SDOCX: %1$d</string>
+    <string name="preflight_locked">Gesperrt: %1$d</string>
+    <string name="preflight_corrupt">Beschädigt oder fehlgeschlagen: %1$d</string>
+    <string name="preflight_text">Enthält Text: %1$d</string>
+    <string name="preflight_handwriting">Enthält Handschrift: %1$d</string>
+    <string name="preflight_media">Enthält Bilder oder Medien: %1$d</string>
+    <string name="options_description">Wähle, wie das portable Archiv erstellt werden soll.</string>
+    <string name="clean_markdown">Sauberes Markdown</string>
+    <string name="obsidian_rich">Obsidian Rich</string>
+    <string name="preserve_handwriting">Handschrift als SVG erhalten</string>
+    <string name="include_attachments">Anhänge einschließen</string>
+    <string name="include_originals">Originale .sdocx-Dateien einschließen</string>
+    <string name="save_zip">ZIP speichern</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="converting_progress">Konvertiere %1$d von %2$d: %3$s</string>
+    <string name="conversion_counters">Abgeschlossen: %1$d • Teilweise: %2$d • Gesperrt: %3$d • Beschädigt/fehlgeschlagen: %4$d</string>
+    <string name="result_summary">Konvertierungsergebnis</string>
+    <string name="saved_zip">ZIP gespeichert: %1$s</string>
+    <string name="saved_zip_default">ausgewähltes Ziel</string>
+    <string name="result_completed">Abgeschlossen: %1$d</string>
+    <string name="result_partial">Teilweise: %1$d</string>
+    <string name="result_locked">Gesperrt: %1$d</string>
+    <string name="result_corrupt_failed">Beschädigt/fehlgeschlagen: %1$d</string>
+    <string name="result_cancelled">Konvertierung abgebrochen. Temporäre Daten wurden freigegeben.</string>
+    <string name="error_message">Fehler: %1$s</string>
+    <string name="unknown_error">Unbekannter Fehler</string>
+    <string name="destination_open_error">Das ausgewählte Ziel kann nicht geöffnet werden.</string>
+    <string name="default_zip_filename">NotesEscape.zip</string>
+    <string name="portable_markdown">Portables Markdown</string>
+    <string name="obsidian_vault">Obsidian-Tresor</string>
+    <string name="folder_structure_help">Die Ordnerstruktur bleibt erhalten, wenn du „Ordner auswählen“ verwendest.</string>
+    <string name="preserve_folder_structure">Ordnerstruktur erhalten</string>
+    <string name="folder_structure_title">Ordnerstruktur</string>
+    <string name="folder_structure_preserved">✓ Aus dem ausgewählten Ordner erhalten</string>
+    <string name="folder_structure_unavailable">Bei der Auswahl einzelner Dateien nicht verfügbar</string>
+    <string name="folder_structure_use_folder">Verwende „Ordner auswählen“, um Unterordner zu erhalten.</string>
+    <string name="obsidian_description">Erstellt ein Obsidian-fertiges ZIP mit Notes/, Attachments/ und Migrationsberichten.</string>
+    <string name="keep_images_attachments">Bilder und Anhänge behalten</string>
+    <string name="convert_handwriting_svg">Handschrift in SVG konvertieren</string>
+    <string name="add_note_metadata">Notizmetadaten hinzufügen</string>
+    <string name="vault_notes">Notizen: %1$d</string>
+    <string name="vault_folders">Ordner: %1$d</string>
+    <string name="vault_images_media">Bilder/Medien: %1$d</string>
+    <string name="vault_handwriting">Handschrift: %1$d</string>
+    <string name="vault_attachments">Anhänge: %1$d</string>
+    <string name="selected_files_root">Ausgewählte Dateien werden im Tresor-Stamm exportiert.</string>
+    <string name="more_folders">+ %1$d weitere Ordner</string>
+    <string name="folder_summary_row">  %1$s    %2$d</string>
+    <string name="obsidian_vault_ready">Obsidian-Tresor bereit</string>
+    <string name="result_vault_notes">%1$d Notizen konvertiert</string>
+    <string name="result_vault_folders">%1$d Ordner erhalten</string>
+    <string name="result_vault_images">%1$d Bilder/Medien erhalten</string>
+    <string name="result_vault_handwriting">%1$d Seiten Handschrift erhalten</string>
+    <string name="result_vault_attachments">%1$d Anhänge erhalten</string>
+    <string name="result_vault_partial">%1$d teilweise</string>
+    <string name="result_vault_failed">%1$d fehlgeschlagen</string>
+    <string name="vault_ready_message">Bereit zum Extrahieren und Öffnen als Obsidian-Tresor.</string>
+    <string name="vault_warning_message">Tresor mit Warnungen erstellt. Prüfe den Migrationsbericht.</string>
+    <string name="vault_failed_message">Einige Notizen konnten nicht konvertiert werden. Prüfe den Migrationsbericht.</string>
+    <string name="default_markdown_zip_filename">NotesEscape-Markdown.zip</string>
+    <string name="default_obsidian_zip_filename">NotesEscape-Obsidian-Vault.zip</string>
+    <plurals name="files_selected_plural">
+      <item quantity="one">%1$d .sdocx-Datei ausgewählt</item>
+      <item quantity="other">%1$d .sdocx-Dateien ausgewählt</item>
+    </plurals>
+    <string name="support_email">launchcircle.server@gmail.com</string>
+    <string name="send_feedback">Feedback senden</string>
+    <string name="feedback_subject">Testfeedback zu Notes Escape SDOCX</string>
+    <string name="feedback_body">App-Version: %1$s
+Android-Version: %2$s
+Hersteller/Modell des Telefons: %3$s
+
+Wie viele .sdocx-Dateien hast du getestet?
+Einzeldatei oder Ordner?
+Wurde die Konvertierung abgeschlossen?
+Ist der Markdown-Inhalt korrekt?
+Wurden Anhänge erhalten?
+Wurde die ZIP-Datei korrekt geöffnet?
+Ergebnis des Obsidian-Imports/der Nutzung:
+Teilweise/gesperrte/fehlgeschlagene Dateien:
+Problem oder Vorschlag:</string>
+    <string name="no_email_app">Keine kompatible E-Mail-App verfügbar.</string>
+    <string name="open_output">ZIP öffnen</string>
+    <string name="no_output_app">Keine kompatible App konnte diese ZIP-Datei öffnen.</string>
+</resources>

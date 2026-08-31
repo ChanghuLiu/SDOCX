@@ -1,0 +1,129 @@
+<resources>
+    <string name="app_name">Ekspor Catatan: SDOCX</string>
+    <string name="processed_locally">Diproses sepenuhnya di perangkat ini</string>
+    <string name="no_upload_account">Tanpa unggah • Tanpa akun</string>
+    <string name="home_description">Konversi ekspor .sdocx Samsung Notes menjadi arsip ZIP portabel yang kompatibel dengan Markdown / Obsidian.</string>
+    <string name="about_help">Tentang / Bantuan</string>
+    <string name="privacy">Privasi</string>
+    <string name="dismiss">Tutup</string>
+    <string name="about_description">Notes Escape adalah alat migrasi lokal independen untuk ekspor .sdocx Samsung Notes.</string>
+    <string name="about_what_is_title">Apa itu .sdocx?</string>
+    <string name="about_what_is_body">.sdocx adalah format ekspor Samsung Notes. Pilih file atau folder untuk membuat arsip ZIP portabel.</string>
+    <string name="about_export_title">Ekspor dari Samsung Notes</string>
+    <string name="about_export_steps">Samsung Notes
+→ Buka atau pilih catatan
+→ Simpan sebagai file / Bagikan
+→ File Samsung Notes
+→ .sdocx
+Nama menu dapat berbeda menurut versi Samsung Notes. Jangan pilih DOCX atau PDF jika ingin melakukan konversi SDOCX.</string>
+    <string name="about_preserves_title">Yang dipertahankan aplikasi ini</string>
+    <string name="about_preserves_body">Teks yang diketik, teks Unicode dan RTL, gambar serta media yang tersedia, tulisan tangan sebagai SVG bila didukung, lampiran, dan file .sdocx asli secara opsional.</string>
+    <string name="about_limitations_title">Batasan yang diketahui</string>
+    <string name="about_limitations_body">Sebagian format Samsung Notes mungkin tidak dikonversi secara persis.
+Tabel kompleks, rumus, objek berpemilik, atau varian SDOCX baru dan lama mungkin dikonversi sebagian.
+Catatan terkunci harus dibuka kuncinya di Samsung Notes sebelum diekspor.
+Tata letak halaman asli tidak dijamin.
+Dukungan format kaya bergantung pada versi Samsung Notes.
+File .sdocx asli dapat disimpan dalam ZIP migrasi.</string>
+    <string name="independent_disclaimer">Notes Escape adalah utilitas migrasi independen dan tidak berafiliasi, didukung, atau disponsori oleh Samsung.</string>
+    <string name="privacy_title">Privasi</string>
+    <string name="privacy_body">Konversi berjalan secara lokal di perangkat ini. File tidak diunggah atau dibagikan. Tidak ada akun, iklan, analitik, backend, atau izin Internet. Anda memilih file sumber dan tujuan ZIP dengan pemilih file Android. File cache sementara dapat dibuat selama konversi dan dibersihkan setelah selesai, dibatalkan, gagal, serta saat aplikasi dimulai.
+Kontak: launchcircle.server@gmail.com</string>
+    <string name="select_files">Pilih file .sdocx</string>
+    <string name="select_folder">Pilih folder</string>
+    <string name="empty_state">Tidak ada file .sdocx yang dipilih</string>
+    <string name="select_empty_help">Pilih satu atau beberapa ekspor Samsung Notes untuk memulai.</string>
+    <string name="stage_select">PILIH</string>
+    <string name="stage_preflight">PRA-PEMERIKSAAN</string>
+    <string name="stage_options">OPSI</string>
+    <string name="stage_converting">MENGONVERSI</string>
+    <string name="stage_result">HASIL</string>
+    <string name="files_selected">%1$d file .sdocx dipilih</string>
+    <string name="files_discovered">File .sdocx ditemukan: %1$d</string>
+    <string name="scanning_notes">Memindai catatan %1$d dari %2$d</string>
+    <string name="preflight_summary">Diagnostik impor</string>
+    <string name="preflight_readable">SDOCX yang dapat dibaca: %1$d</string>
+    <string name="preflight_locked">Terkunci: %1$d</string>
+    <string name="preflight_corrupt">Rusak atau gagal: %1$d</string>
+    <string name="preflight_text">Berisi teks: %1$d</string>
+    <string name="preflight_handwriting">Berisi tulisan tangan: %1$d</string>
+    <string name="preflight_media">Berisi gambar atau media: %1$d</string>
+    <string name="options_description">Pilih cara penulisan arsip portabel.</string>
+    <string name="clean_markdown">Markdown bersih</string>
+    <string name="obsidian_rich">Obsidian Rich</string>
+    <string name="preserve_handwriting">Pertahankan tulisan tangan sebagai SVG</string>
+    <string name="include_attachments">Sertakan lampiran</string>
+    <string name="include_originals">Sertakan file .sdocx asli</string>
+    <string name="save_zip">Simpan ZIP</string>
+    <string name="cancel">Batal</string>
+    <string name="converting_progress">Mengonversi %1$d dari %2$d: %3$s</string>
+    <string name="conversion_counters">Selesai: %1$d • Sebagian: %2$d • Terkunci: %3$d • Rusak/gagal: %4$d</string>
+    <string name="result_summary">Hasil konversi</string>
+    <string name="saved_zip">ZIP disimpan: %1$s</string>
+    <string name="saved_zip_default">tujuan yang dipilih</string>
+    <string name="result_completed">Selesai: %1$d</string>
+    <string name="result_partial">Sebagian: %1$d</string>
+    <string name="result_locked">Terkunci: %1$d</string>
+    <string name="result_corrupt_failed">Rusak/gagal: %1$d</string>
+    <string name="result_cancelled">Konversi dibatalkan. Data sementara telah dibersihkan.</string>
+    <string name="error_message">Kesalahan: %1$s</string>
+    <string name="unknown_error">Kesalahan tidak diketahui</string>
+    <string name="destination_open_error">Tujuan yang dipilih tidak dapat dibuka.</string>
+    <string name="default_zip_filename">NotesEscape.zip</string>
+    <string name="portable_markdown">Markdown portabel</string>
+    <string name="obsidian_vault">Vault Obsidian</string>
+    <string name="folder_structure_help">Struktur folder dipertahankan saat Anda menggunakan Pilih folder.</string>
+    <string name="preserve_folder_structure">Pertahankan struktur folder</string>
+    <string name="folder_structure_title">Struktur folder</string>
+    <string name="folder_structure_preserved">✓ Dipertahankan dari folder yang dipilih</string>
+    <string name="folder_structure_unavailable">Tidak tersedia untuk pemilihan file individual</string>
+    <string name="folder_structure_use_folder">Gunakan Pilih folder untuk mempertahankan subfolder.</string>
+    <string name="obsidian_description">Membuat ZIP siap Obsidian yang berisi Notes/, Attachments/, dan laporan migrasi.</string>
+    <string name="keep_images_attachments">Pertahankan gambar dan lampiran</string>
+    <string name="convert_handwriting_svg">Konversi tulisan tangan ke SVG</string>
+    <string name="add_note_metadata">Tambahkan metadata catatan</string>
+    <string name="vault_notes">Catatan: %1$d</string>
+    <string name="vault_folders">Folder: %1$d</string>
+    <string name="vault_images_media">Gambar/media: %1$d</string>
+    <string name="vault_handwriting">Tulisan tangan: %1$d</string>
+    <string name="vault_attachments">Lampiran: %1$d</string>
+    <string name="selected_files_root">File yang dipilih akan diekspor di root vault.</string>
+    <string name="more_folders">+ %1$d folder lainnya</string>
+    <string name="folder_summary_row">  %1$s    %2$d</string>
+    <string name="obsidian_vault_ready">Vault Obsidian siap</string>
+    <string name="result_vault_notes">%1$d catatan dikonversi</string>
+    <string name="result_vault_folders">%1$d folder dipertahankan</string>
+    <string name="result_vault_images">%1$d gambar/media dipertahankan</string>
+    <string name="result_vault_handwriting">%1$d halaman tulisan tangan dipertahankan</string>
+    <string name="result_vault_attachments">%1$d lampiran dipertahankan</string>
+    <string name="result_vault_partial">%1$d sebagian</string>
+    <string name="result_vault_failed">%1$d gagal</string>
+    <string name="vault_ready_message">Siap diekstrak dan dibuka sebagai vault Obsidian.</string>
+    <string name="vault_warning_message">Vault dibuat dengan peringatan. Tinjau laporan migrasi.</string>
+    <string name="vault_failed_message">Beberapa catatan tidak dapat dikonversi. Tinjau laporan migrasi.</string>
+    <string name="default_markdown_zip_filename">NotesEscape-Markdown.zip</string>
+    <string name="default_obsidian_zip_filename">NotesEscape-Obsidian-Vault.zip</string>
+    <plurals name="files_selected_plural">
+      <item quantity="one">%1$d file .sdocx dipilih</item>
+      <item quantity="other">%1$d file .sdocx dipilih</item>
+    </plurals>
+    <string name="support_email">launchcircle.server@gmail.com</string>
+    <string name="send_feedback">Kirim masukan</string>
+    <string name="feedback_subject">Masukan pengujian Notes Escape SDOCX</string>
+    <string name="feedback_body">Versi aplikasi: %1$s
+Versi Android: %2$s
+Produsen/model ponsel: %3$s
+
+Berapa banyak file .sdocx yang diuji?
+Satu file atau folder?
+Apakah konversi selesai?
+Apakah isi Markdown benar?
+Apakah lampiran tetap tersimpan?
+Apakah ZIP terbuka dengan benar?
+Hasil impor/penggunaan Obsidian:
+File sebagian/terkunci/gagal:
+Masalah atau saran:</string>
+    <string name="no_email_app">Tidak ada aplikasi email yang kompatibel.</string>
+    <string name="open_output">Buka ZIP</string>
+    <string name="no_output_app">Tidak ada aplikasi kompatibel yang dapat membuka ZIP ini.</string>
+</resources>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Notes Escape: SDOCX</string>
+    <string name="app_name">노트 내보내기: SDOCX</string>
     <string name="processed_locally">이 기기에서만 처리됩니다</string>
     <string name="no_upload_account">업로드 없음 • 계정 없음</string>
     <string name="home_description">Samsung Notes .sdocx 내보내기를 Markdown / Obsidian 호환 ZIP 보관 파일로 변환합니다.</string>
@@ -17,7 +17,7 @@
     <string name="about_limitations_body">일부 Samsung Notes 서식은 정확히 변환되지 않을 수 있습니다. 복잡한 표, 수식, 독점 개체 또는 최신 및 이전 SDOCX 변형은 부분적으로 변환될 수 있습니다. 잠긴 노트는 내보내기 전에 Samsung Notes에서 잠금 해제해야 합니다. 원본 페이지 레이아웃은 보장되지 않습니다. 서식 지원은 Samsung Notes 버전에 따라 달라집니다. 원본 .sdocx 파일은 마이그레이션 ZIP에 보존할 수 있습니다.</string>
     <string name="independent_disclaimer">Notes Escape는 독립적인 마이그레이션 도구이며 Samsung과 제휴하거나 Samsung의 승인 또는 후원을 받지 않습니다.</string>
     <string name="privacy_title">개인정보 보호</string>
-    <string name="privacy_body">변환은 이 기기에서 로컬로 실행됩니다. 파일을 업로드하거나 공유하지 않습니다. 계정, 광고, 분석, 백엔드 또는 인터넷 권한이 없습니다. Android 파일 선택기를 사용하여 원본 파일과 ZIP 저장 위치를 직접 선택합니다. 변환 중 임시 캐시 파일이 생성될 수 있으며 완료, 취소, 실패 및 앱 시작 시 정리됩니다.\n\n문의: artbyte@126.com</string>
+    <string name="privacy_body">변환은 이 기기에서 로컬로 실행됩니다. 파일을 업로드하거나 공유하지 않습니다. 계정, 광고, 분석, 백엔드 또는 인터넷 권한이 없습니다. Android 파일 선택기를 사용하여 원본 파일과 ZIP 저장 위치를 직접 선택합니다. 변환 중 임시 캐시 파일이 생성될 수 있으며 완료, 취소, 실패 및 앱 시작 시 정리됩니다.\n\n문의: launchcircle.server@gmail.com</string>
     <string name="select_files">.sdocx 파일 선택</string>
     <string name="select_folder">폴더 선택</string>
     <string name="empty_state">선택된 .sdocx 파일이 없습니다</string>
@@ -63,4 +63,23 @@
     <string name="portable_markdown">휴대용 Markdown</string><string name="obsidian_vault">Obsidian 보관함</string><string name="folder_structure_help">폴더 선택을 사용하면 폴더 구조가 보존됩니다.</string><string name="preserve_folder_structure">폴더 구조 보존</string>
     <string name="folder_structure_title">폴더 구조</string><string name="folder_structure_preserved">✓ 선택한 폴더에서 보존됨</string><string name="folder_structure_unavailable">개별 파일 선택에서는 사용할 수 없음</string><string name="folder_structure_use_folder">하위 폴더를 보존하려면 폴더 선택을 사용하세요.</string><string name="obsidian_description">Notes/, Attachments/ 및 마이그레이션 보고서가 포함된 Obsidian용 ZIP을 만듭니다.</string><string name="keep_images_attachments">이미지 및 첨부 파일 유지</string><string name="convert_handwriting_svg">손글씨를 SVG로 변환</string><string name="add_note_metadata">노트 메타데이터 추가</string><string name="vault_notes">노트: %1$d</string><string name="vault_folders">폴더: %1$d</string><string name="vault_images_media">이미지/미디어: %1$d</string><string name="vault_handwriting">손글씨: %1$d</string><string name="vault_attachments">첨부 파일: %1$d</string><string name="selected_files_root">선택한 파일은 보관함 루트로 내보냅니다.</string><string name="more_folders">+ 폴더 %1$d개 더 있음</string><string name="obsidian_vault_ready">Obsidian 보관함 준비 완료</string><string name="result_vault_notes">노트 %1$d개 변환됨</string><string name="result_vault_folders">폴더 %1$d개 보존됨</string><string name="result_vault_images">이미지/미디어 %1$d개 보존됨</string><string name="result_vault_handwriting">손글씨 페이지 %1$d개 보존됨</string><string name="result_vault_attachments">첨부 파일 %1$d개 보존됨</string><string name="result_vault_partial">부분 완료 %1$d개</string><string name="result_vault_failed">실패 %1$d개</string><string name="vault_ready_message">추출하여 Obsidian 보관함으로 열 수 있습니다.</string><string name="vault_warning_message">경고와 함께 보관함이 생성되었습니다. 보고서를 확인하세요.</string><string name="vault_failed_message">일부 노트를 변환하지 못했습니다. 보고서를 확인하세요.</string><string name="default_markdown_zip_filename">NotesEscape-Markdown.zip</string><string name="default_obsidian_zip_filename">NotesEscape-Obsidian-Vault.zip</string>
     <string name="folder_summary_row">  %1$s    %2$d</string>
+    <string name="support_email">launchcircle.server@gmail.com</string>
+    <string name="send_feedback">피드백 보내기</string>
+    <string name="feedback_subject">Notes Escape SDOCX 테스트 피드백</string>
+    <string name="feedback_body">앱 버전: %1$s
+Android 버전: %2$s
+휴대전화 제조사/모델: %3$s
+
+테스트한 .sdocx 파일 수:
+단일 파일 또는 폴더:
+변환이 완료되었나요:
+Markdown 내용이 정확한가요:
+첨부 파일이 보존되었나요:
+ZIP이 제대로 열렸나요:
+Obsidian 가져오기/사용 결과:
+부분/잠김/실패한 파일:
+문제 또는 제안:</string>
+    <string name="no_email_app">호환되는 이메일 앱을 사용할 수 없습니다.</string>
+    <string name="open_output">ZIP 열기</string>
+    <string name="no_output_app">이 ZIP을 열 수 있는 호환 앱이 없습니다.</string>
 </resources>

@@ -1,0 +1,129 @@
+<resources>
+    <string name="app_name">नोट्स एक्सपोर्ट: SDOCX</string>
+    <string name="processed_locally">इस डिवाइस पर पूरी तरह प्रोसेस किया गया</string>
+    <string name="no_upload_account">कोई अपलोड नहीं • कोई खाता नहीं</string>
+    <string name="home_description">Samsung Notes के .sdocx एक्सपोर्ट को पोर्टेबल Markdown / Obsidian-संगत ZIP आर्काइव में बदलें।</string>
+    <string name="about_help">जानकारी / सहायता</string>
+    <string name="privacy">गोपनीयता</string>
+    <string name="dismiss">बंद करें</string>
+    <string name="about_description">Notes Escape Samsung Notes के .sdocx एक्सपोर्ट के लिए स्वतंत्र स्थानीय माइग्रेशन टूल है।</string>
+    <string name="about_what_is_title">.sdocx क्या है?</string>
+    <string name="about_what_is_body">.sdocx Samsung Notes का एक्सपोर्ट फ़ॉर्मैट है। पोर्टेबल ZIP आर्काइव बनाने के लिए फ़ाइलें या फ़ोल्डर चुनें।</string>
+    <string name="about_export_title">Samsung Notes से एक्सपोर्ट करें</string>
+    <string name="about_export_steps">Samsung Notes
+→ नोट खोलें या चुनें
+→ फ़ाइल के रूप में सेव / शेयर करें
+→ Samsung Notes फ़ाइल
+→ .sdocx
+Samsung Notes के संस्करण के अनुसार मेनू का नाम बदल सकता है। SDOCX कन्वर्ज़न के लिए DOCX या PDF न चुनें।</string>
+    <string name="about_preserves_title">यह ऐप क्या सुरक्षित रखता है</string>
+    <string name="about_preserves_body">टाइप किया हुआ टेक्स्ट, Unicode और RTL टेक्स्ट, उपलब्ध चित्र और मीडिया, समर्थित होने पर SVG के रूप में हस्तलेखन, अटैचमेंट और वैकल्पिक मूल .sdocx फ़ाइलें।</string>
+    <string name="about_limitations_title">ज्ञात सीमाएँ</string>
+    <string name="about_limitations_body">कुछ Samsung Notes फ़ॉर्मैटिंग बिल्कुल वैसी कन्वर्ट नहीं हो सकती।
+जटिल टेबल, फ़ॉर्मूला, मालिकाना ऑब्जेक्ट या नए और पुराने SDOCX वैरिएंट आंशिक रूप से कन्वर्ट हो सकते हैं।
+लॉक किए गए नोट्स को एक्सपोर्ट से पहले Samsung Notes में अनलॉक करें।
+मूल पेज लेआउट की गारंटी नहीं है।
+रिच फ़ॉर्मैटिंग का समर्थन Samsung Notes संस्करण पर निर्भर करता है।
+मूल .sdocx फ़ाइलें माइग्रेशन ZIP में रखी जा सकती हैं।</string>
+    <string name="independent_disclaimer">Notes Escape एक स्वतंत्र माइग्रेशन टूल है और Samsung से संबद्ध, अनुमोदित या प्रायोजित नहीं है।</string>
+    <string name="privacy_title">गोपनीयता</string>
+    <string name="privacy_body">कन्वर्ज़न इसी डिवाइस पर स्थानीय रूप से होता है। फ़ाइलें अपलोड या शेयर नहीं की जातीं। कोई खाता, विज्ञापन, एनालिटिक्स, बैकएंड या इंटरनेट अनुमति नहीं है। Android फ़ाइल पिकर से स्रोत फ़ाइलें और ZIP गंतव्य चुनें। कन्वर्ज़न के दौरान अस्थायी कैश बन सकता है और पूरा होने, रद्द होने, विफलता तथा ऐप शुरू होने पर साफ़ किया जाता है।
+संपर्क: launchcircle.server@gmail.com</string>
+    <string name="select_files">.sdocx फ़ाइलें चुनें</string>
+    <string name="select_folder">फ़ोल्डर चुनें</string>
+    <string name="empty_state">कोई .sdocx फ़ाइल नहीं चुनी गई</string>
+    <string name="select_empty_help">शुरू करने के लिए एक या अधिक Samsung Notes एक्सपोर्ट चुनें।</string>
+    <string name="stage_select">चुनें</string>
+    <string name="stage_preflight">प्री-फ़्लाइट</string>
+    <string name="stage_options">विकल्प</string>
+    <string name="stage_converting">कन्वर्ट हो रहा है</string>
+    <string name="stage_result">परिणाम</string>
+    <string name="files_selected">%1$d .sdocx फ़ाइल चुनी गई</string>
+    <string name="files_discovered">मिली हुई .sdocx फ़ाइलें: %1$d</string>
+    <string name="scanning_notes">नोट %1$d में से %2$d स्कैन हो रहा है</string>
+    <string name="preflight_summary">इम्पोर्ट जाँच</string>
+    <string name="preflight_readable">पढ़ने योग्य SDOCX: %1$d</string>
+    <string name="preflight_locked">लॉक किए गए: %1$d</string>
+    <string name="preflight_corrupt">खराब या विफल: %1$d</string>
+    <string name="preflight_text">टेक्स्ट मौजूद: %1$d</string>
+    <string name="preflight_handwriting">हस्तलेखन मौजूद: %1$d</string>
+    <string name="preflight_media">चित्र या मीडिया मौजूद: %1$d</string>
+    <string name="options_description">पोर्टेबल आर्काइव कैसे लिखा जाए, चुनें।</string>
+    <string name="clean_markdown">साफ़ Markdown</string>
+    <string name="obsidian_rich">Obsidian Rich</string>
+    <string name="preserve_handwriting">हस्तलेखन को SVG के रूप में रखें</string>
+    <string name="include_attachments">अटैचमेंट शामिल करें</string>
+    <string name="include_originals">मूल .sdocx फ़ाइलें शामिल करें</string>
+    <string name="save_zip">ZIP सेव करें</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="converting_progress">%1$d में से %2$d कन्वर्ट हो रहा है: %3$s</string>
+    <string name="conversion_counters">पूर्ण: %1$d • आंशिक: %2$d • लॉक: %3$d • खराब/विफल: %4$d</string>
+    <string name="result_summary">कन्वर्ज़न परिणाम</string>
+    <string name="saved_zip">ZIP सेव हुआ: %1$s</string>
+    <string name="saved_zip_default">चुना गया गंतव्य</string>
+    <string name="result_completed">पूर्ण: %1$d</string>
+    <string name="result_partial">आंशिक: %1$d</string>
+    <string name="result_locked">लॉक: %1$d</string>
+    <string name="result_corrupt_failed">खराब/विफल: %1$d</string>
+    <string name="result_cancelled">कन्वर्ज़न रद्द हुआ। अस्थायी डेटा हटा दिया गया।</string>
+    <string name="error_message">त्रुटि: %1$s</string>
+    <string name="unknown_error">अज्ञात त्रुटि</string>
+    <string name="destination_open_error">चुना गया गंतव्य खोला नहीं जा सकता।</string>
+    <string name="default_zip_filename">NotesEscape.zip</string>
+    <string name="portable_markdown">पोर्टेबल Markdown</string>
+    <string name="obsidian_vault">Obsidian Vault</string>
+    <string name="folder_structure_help">फ़ोल्डर चुनें का उपयोग करने पर फ़ोल्डर संरचना सुरक्षित रहती है।</string>
+    <string name="preserve_folder_structure">फ़ोल्डर संरचना सुरक्षित रखें</string>
+    <string name="folder_structure_title">फ़ोल्डर संरचना</string>
+    <string name="folder_structure_preserved">✓ चुने गए फ़ोल्डर से सुरक्षित</string>
+    <string name="folder_structure_unavailable">अलग-अलग फ़ाइल चुनने पर उपलब्ध नहीं</string>
+    <string name="folder_structure_use_folder">सबफ़ोल्डर सुरक्षित रखने के लिए फ़ोल्डर चुनें का उपयोग करें।</string>
+    <string name="obsidian_description">Notes/, Attachments/ और माइग्रेशन रिपोर्ट वाला Obsidian-तैयार ZIP बनाता है।</string>
+    <string name="keep_images_attachments">चित्र और अटैचमेंट रखें</string>
+    <string name="convert_handwriting_svg">हस्तलेखन को SVG में बदलें</string>
+    <string name="add_note_metadata">नोट मेटाडेटा जोड़ें</string>
+    <string name="vault_notes">नोट: %1$d</string>
+    <string name="vault_folders">फ़ोल्डर: %1$d</string>
+    <string name="vault_images_media">चित्र/मीडिया: %1$d</string>
+    <string name="vault_handwriting">हस्तलेखन: %1$d</string>
+    <string name="vault_attachments">अटैचमेंट: %1$d</string>
+    <string name="selected_files_root">चुनी गई फ़ाइलें Vault के रूट में एक्सपोर्ट होंगी।</string>
+    <string name="more_folders">+ %1$d और फ़ोल्डर</string>
+    <string name="folder_summary_row">  %1$s    %2$d</string>
+    <string name="obsidian_vault_ready">Obsidian Vault तैयार</string>
+    <string name="result_vault_notes">%1$d नोट कन्वर्ट हुए</string>
+    <string name="result_vault_folders">%1$d फ़ोल्डर सुरक्षित</string>
+    <string name="result_vault_images">%1$d चित्र/मीडिया सुरक्षित</string>
+    <string name="result_vault_handwriting">%1$d हस्तलेखन पेज सुरक्षित</string>
+    <string name="result_vault_attachments">%1$d अटैचमेंट सुरक्षित</string>
+    <string name="result_vault_partial">%1$d आंशिक</string>
+    <string name="result_vault_failed">%1$d विफल</string>
+    <string name="vault_ready_message">Obsidian Vault के रूप में निकालने और खोलने के लिए तैयार।</string>
+    <string name="vault_warning_message">चेतावनियों के साथ Vault बनाया गया। माइग्रेशन रिपोर्ट देखें।</string>
+    <string name="vault_failed_message">कुछ नोट कन्वर्ट नहीं हो सके। माइग्रेशन रिपोर्ट देखें।</string>
+    <string name="default_markdown_zip_filename">NotesEscape-Markdown.zip</string>
+    <string name="default_obsidian_zip_filename">NotesEscape-Obsidian-Vault.zip</string>
+    <plurals name="files_selected_plural">
+      <item quantity="one">%1$d .sdocx फ़ाइल चुनी गई</item>
+      <item quantity="other">%1$d .sdocx फ़ाइलें चुनी गईं</item>
+    </plurals>
+    <string name="support_email">launchcircle.server@gmail.com</string>
+    <string name="send_feedback">फ़ीडबैक भेजें</string>
+    <string name="feedback_subject">Notes Escape SDOCX परीक्षण फ़ीडबैक</string>
+    <string name="feedback_body">ऐप संस्करण: %1$s
+Android संस्करण: %2$s
+फ़ोन निर्माता/मॉडल: %3$s
+
+आपने कितनी .sdocx फ़ाइलों का परीक्षण किया?
+एक फ़ाइल या फ़ोल्डर?
+क्या रूपांतरण पूरा हुआ?
+क्या Markdown सामग्री सही है?
+क्या अटैचमेंट सुरक्षित रहे?
+क्या ZIP सही तरह खुली?
+Obsidian आयात/उपयोग परिणाम:
+आंशिक/लॉक/विफल फ़ाइलें:
+समस्या या सुझाव:</string>
+    <string name="no_email_app">कोई संगत ईमेल ऐप उपलब्ध नहीं है।</string>
+    <string name="open_output">ZIP खोलें</string>
+    <string name="no_output_app">कोई संगत ऐप इस ZIP को नहीं खोल सका।</string>
+</resources>

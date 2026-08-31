@@ -1,0 +1,131 @@
+<resources>
+    <string name="app_name">Экспорт заметок: SDOCX</string>
+    <string name="processed_locally">Полностью обработано на этом устройстве</string>
+    <string name="no_upload_account">Без загрузки • Без аккаунта</string>
+    <string name="home_description">Преобразуйте экспорт .sdocx из Samsung Notes в переносимый ZIP-архив, совместимый с Markdown и Obsidian.</string>
+    <string name="about_help">О приложении / Помощь</string>
+    <string name="privacy">Конфиденциальность</string>
+    <string name="dismiss">Закрыть</string>
+    <string name="about_description">Notes Escape — независимый локальный инструмент миграции для экспорта .sdocx из Samsung Notes.</string>
+    <string name="about_what_is_title">Что такое .sdocx?</string>
+    <string name="about_what_is_body">.sdocx — формат экспорта Samsung Notes. Выберите файлы или папку, чтобы создать переносимый ZIP-архив.</string>
+    <string name="about_export_title">Экспорт из Samsung Notes</string>
+    <string name="about_export_steps">Samsung Notes
+→ Откройте или выберите заметку
+→ Сохранить как файл / Поделиться
+→ Файл Samsung Notes
+→ .sdocx
+Названия пунктов меню могут различаться в разных версиях Samsung Notes. Для преобразования SDOCX не выбирайте DOCX или PDF.</string>
+    <string name="about_preserves_title">Что сохраняет приложение</string>
+    <string name="about_preserves_body">Введённый текст, Unicode и RTL-текст, доступные изображения и медиа, рукопись в SVG при поддержке, вложения и при необходимости исходные файлы .sdocx.</string>
+    <string name="about_limitations_title">Известные ограничения</string>
+    <string name="about_limitations_body">Некоторые элементы форматирования Samsung Notes могут преобразоваться неточно.
+Сложные таблицы, формулы, проприетарные объекты, а также новые и старые варианты SDOCX могут быть преобразованы частично.
+Заблокированные заметки нужно разблокировать в Samsung Notes перед экспортом.
+Исходный макет страницы не гарантируется.
+Поддержка расширенного форматирования зависит от версии Samsung Notes.
+Исходные файлы .sdocx можно сохранить в ZIP-архиве миграции.</string>
+    <string name="independent_disclaimer">Notes Escape — независимая утилита миграции, не связанная с Samsung, не одобренная и не спонсируемая Samsung.</string>
+    <string name="privacy_title">Конфиденциальность</string>
+    <string name="privacy_body">Преобразование выполняется локально на этом устройстве. Файлы не загружаются и не передаются. Нет аккаунта, рекламы, аналитики, серверной части или разрешения на Интернет. Вы выбираете исходные файлы и место для ZIP с помощью средства выбора файлов Android. Во время преобразования могут создаваться временные файлы кэша; они удаляются после завершения, отмены, ошибки и при запуске приложения.
+Контакт: launchcircle.server@gmail.com</string>
+    <string name="select_files">Выбрать файлы .sdocx</string>
+    <string name="select_folder">Выбрать папку</string>
+    <string name="empty_state">Файлы .sdocx не выбраны</string>
+    <string name="select_empty_help">Для начала выберите один или несколько экспортов Samsung Notes.</string>
+    <string name="stage_select">ВЫБОР</string>
+    <string name="stage_preflight">ПРЕДПРОВЕРКА</string>
+    <string name="stage_options">ПАРАМЕТРЫ</string>
+    <string name="stage_converting">ПРЕОБРАЗОВАНИЕ</string>
+    <string name="stage_result">РЕЗУЛЬТАТ</string>
+    <string name="files_selected">Выбрано файлов .sdocx: %1$d</string>
+    <string name="files_discovered">Найдено файлов .sdocx: %1$d</string>
+    <string name="scanning_notes">Сканирование заметки %1$d из %2$d</string>
+    <string name="preflight_summary">Диагностика импорта</string>
+    <string name="preflight_readable">Читаемые SDOCX: %1$d</string>
+    <string name="preflight_locked">Заблокировано: %1$d</string>
+    <string name="preflight_corrupt">Повреждено или не удалось: %1$d</string>
+    <string name="preflight_text">Содержит текст: %1$d</string>
+    <string name="preflight_handwriting">Содержит рукопись: %1$d</string>
+    <string name="preflight_media">Содержит изображения или медиа: %1$d</string>
+    <string name="options_description">Выберите способ создания переносимого архива.</string>
+    <string name="clean_markdown">Чистый Markdown</string>
+    <string name="obsidian_rich">Obsidian Rich</string>
+    <string name="preserve_handwriting">Сохранять рукопись как SVG</string>
+    <string name="include_attachments">Включить вложения</string>
+    <string name="include_originals">Включить исходные файлы .sdocx</string>
+    <string name="save_zip">Сохранить ZIP</string>
+    <string name="cancel">Отмена</string>
+    <string name="converting_progress">Преобразование %1$d из %2$d: %3$s</string>
+    <string name="conversion_counters">Завершено: %1$d • Частично: %2$d • Заблокировано: %3$d • Повреждено/ошибок: %4$d</string>
+    <string name="result_summary">Результат преобразования</string>
+    <string name="saved_zip">ZIP сохранён: %1$s</string>
+    <string name="saved_zip_default">выбранное место</string>
+    <string name="result_completed">Завершено: %1$d</string>
+    <string name="result_partial">Частично: %1$d</string>
+    <string name="result_locked">Заблокировано: %1$d</string>
+    <string name="result_corrupt_failed">Повреждено/ошибок: %1$d</string>
+    <string name="result_cancelled">Преобразование отменено. Временные данные удалены.</string>
+    <string name="error_message">Ошибка: %1$s</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="destination_open_error">Не удалось открыть выбранное место.</string>
+    <string name="default_zip_filename">NotesEscape.zip</string>
+    <string name="portable_markdown">Переносимый Markdown</string>
+    <string name="obsidian_vault">Хранилище Obsidian</string>
+    <string name="folder_structure_help">Структура папок сохраняется при выборе пункта «Выбрать папку».</string>
+    <string name="preserve_folder_structure">Сохранять структуру папок</string>
+    <string name="folder_structure_title">Структура папок</string>
+    <string name="folder_structure_preserved">✓ Сохранено из выбранной папки</string>
+    <string name="folder_structure_unavailable">Недоступно при выборе отдельных файлов</string>
+    <string name="folder_structure_use_folder">Чтобы сохранить подпапки, выберите папку.</string>
+    <string name="obsidian_description">Создаёт ZIP для Obsidian с папками Notes/, Attachments/ и отчётами миграции.</string>
+    <string name="keep_images_attachments">Сохранять изображения и вложения</string>
+    <string name="convert_handwriting_svg">Преобразовать рукопись в SVG</string>
+    <string name="add_note_metadata">Добавить метаданные заметок</string>
+    <string name="vault_notes">Заметки: %1$d</string>
+    <string name="vault_folders">Папки: %1$d</string>
+    <string name="vault_images_media">Изображения/медиа: %1$d</string>
+    <string name="vault_handwriting">Рукопись: %1$d</string>
+    <string name="vault_attachments">Вложения: %1$d</string>
+    <string name="selected_files_root">Выбранные файлы будут экспортированы в корень хранилища.</string>
+    <string name="more_folders">Ещё папок: %1$d</string>
+    <string name="folder_summary_row">  %1$s    %2$d</string>
+    <string name="obsidian_vault_ready">Хранилище Obsidian готово</string>
+    <string name="result_vault_notes">Преобразовано заметок: %1$d</string>
+    <string name="result_vault_folders">Сохранено папок: %1$d</string>
+    <string name="result_vault_images">Сохранено изображений/медиа: %1$d</string>
+    <string name="result_vault_handwriting">Сохранено страниц рукописи: %1$d</string>
+    <string name="result_vault_attachments">Сохранено вложений: %1$d</string>
+    <string name="result_vault_partial">Частично: %1$d</string>
+    <string name="result_vault_failed">Ошибок: %1$d</string>
+    <string name="vault_ready_message">Готово к извлечению и открытию как хранилище Obsidian.</string>
+    <string name="vault_warning_message">Хранилище создано с предупреждениями. Проверьте отчёт миграции.</string>
+    <string name="vault_failed_message">Некоторые заметки не удалось преобразовать. Проверьте отчёт миграции.</string>
+    <string name="default_markdown_zip_filename">NotesEscape-Markdown.zip</string>
+    <string name="default_obsidian_zip_filename">NotesEscape-Obsidian-Vault.zip</string>
+    <plurals name="files_selected_plural">
+      <item quantity="one">Выбран файл .sdocx: %1$d</item>
+      <item quantity="few">Выбрано файла .sdocx: %1$d</item>
+      <item quantity="many">Выбрано файлов .sdocx: %1$d</item>
+      <item quantity="other">Выбрано файлов .sdocx: %1$d</item>
+    </plurals>
+    <string name="support_email">launchcircle.server@gmail.com</string>
+    <string name="send_feedback">Отправить отзыв</string>
+    <string name="feedback_subject">Отзыв о тестировании Notes Escape SDOCX</string>
+    <string name="feedback_body">Версия приложения: %1$s
+Версия Android: %2$s
+Производитель/модель телефона: %3$s
+
+Сколько файлов .sdocx вы проверили?
+Один файл или папка?
+Конвертация завершилась?
+Содержимое Markdown верное?
+Вложения сохранены?
+ZIP открылся правильно?
+Результат импорта/использования в Obsidian:
+Частичные/заблокированные/неудачные файлы:
+Проблема или предложение:</string>
+    <string name="no_email_app">Нет совместимого приложения электронной почты.</string>
+    <string name="open_output">Открыть ZIP</string>
+    <string name="no_output_app">Совместимое приложение не смогло открыть этот ZIP.</string>
+</resources>

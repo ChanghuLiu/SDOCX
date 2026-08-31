@@ -51,7 +51,7 @@ Important limitations:
 Notes Escape is an independent utility and is not affiliated with, endorsed by,
 or sponsored by Samsung.
 
-Support: artbyte@126.com
+Support: launchcircle.server@gmail.com
 ## V1.1
 
 Export Samsung Notes `.sdocx` files locally as Portable Markdown or an Obsidian Vault ZIP. Selecting a folder preserves its filesystem hierarchy beneath `Notes/` and `Attachments/`; selecting individual files does not invent folder structure. No account, upload, cloud, or network access is used.

@@ -8,4 +8,4 @@ exist during conversion and are cleaned on normal completion, cancellation, or
 failure, and stale conversion cache is cleaned when the app starts; users
 should not treat the cache as permanent storage.
 
-Contact: artbyte@126.com
+Contact: launchcircle.server@gmail.com

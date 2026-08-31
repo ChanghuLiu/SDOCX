@@ -33,12 +33,12 @@ class ExampleInstrumentedTest {
         val frenchConfig = Configuration(base.resources.configuration)
         frenchConfig.setLocale(Locale.FRENCH)
         val french = base.createConfigurationContext(frenchConfig)
-        assertEquals("Notes Escape : SDOCX", french.getString(com.notesescape.sdocx.R.string.app_name))
+        assertEquals("Export de notes : SDOCX", french.getString(com.notesescape.sdocx.R.string.app_name))
 
         val arabicConfig = Configuration(base.resources.configuration)
         arabicConfig.setLocale(Locale("ar"))
         val arabic = base.createConfigurationContext(arabicConfig)
-        assertEquals("هروب الملاحظات: SDOCX", arabic.getString(com.notesescape.sdocx.R.string.app_name))
+        assertEquals("تصدير الملاحظات: SDOCX", arabic.getString(com.notesescape.sdocx.R.string.app_name))
         assertEquals(View.LAYOUT_DIRECTION_RTL, arabic.resources.configuration.layoutDirection)
     }
 }

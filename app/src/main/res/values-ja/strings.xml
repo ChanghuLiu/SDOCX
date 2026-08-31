@@ -1,0 +1,129 @@
+<resources>
+    <string name="app_name">ノート書き出し: SDOCX</string>
+    <string name="processed_locally">この端末内だけで処理</string>
+    <string name="no_upload_account">アップロードなし • アカウント不要</string>
+    <string name="home_description">Samsung Notesの.sdocx書き出しを、Markdown / Obsidian対応のポータブルなZIPアーカイブに変換します。</string>
+    <string name="about_help">情報 / ヘルプ</string>
+    <string name="privacy">プライバシー</string>
+    <string name="dismiss">閉じる</string>
+    <string name="about_description">Notes Escapeは、Samsung Notesの.sdocx書き出し用の独立したローカル移行ツールです。</string>
+    <string name="about_what_is_title">.sdocxとは？</string>
+    <string name="about_what_is_body">.sdocxはSamsung Notesの書き出し形式です。ファイルまたはフォルダを選択してポータブルなZIPアーカイブを作成します。</string>
+    <string name="about_export_title">Samsung Notesから書き出す</string>
+    <string name="about_export_steps">Samsung Notes
+→ ノートを開く、または選択
+→ ファイルとして保存 / 共有
+→ Samsung Notesファイル
+→ .sdocx
+メニューの名称はSamsung Notesのバージョンにより異なる場合があります。SDOCX変換ではDOCXやPDFを選択しないでください。</string>
+    <string name="about_preserves_title">このアプリで保持されるもの</string>
+    <string name="about_preserves_body">入力したテキスト、UnicodeとRTLテキスト、利用可能な画像とメディア、対応時のSVG形式の手書き、添付ファイル、任意で元の.sdocxファイルを保持します。</string>
+    <string name="about_limitations_title">既知の制限</string>
+    <string name="about_limitations_body">Samsung Notesの一部の書式は正確に変換されない場合があります。
+複雑な表、数式、独自オブジェクト、新旧のSDOCX形式は部分的に変換される場合があります。
+ロックされたノートは書き出し前にSamsung Notesでロックを解除してください。
+元のページレイアウトは保証されません。
+リッチ書式の対応はSamsung Notesのバージョンにより異なります。
+元の.sdocxファイルは移行ZIPに保存できます。</string>
+    <string name="independent_disclaimer">Notes Escapeは独立した移行ユーティリティであり、Samsungとは提携、承認、スポンサー関係にありません。</string>
+    <string name="privacy_title">プライバシー</string>
+    <string name="privacy_body">変換はこの端末上でローカルに実行されます。ファイルはアップロードも共有もされません。アカウント、広告、分析、バックエンド、インターネット権限はありません。Androidのファイル選択を使って入力ファイルとZIPの保存先を選びます。変換中に一時キャッシュが作成されることがありますが、完了、キャンセル、失敗時およびアプリ起動時に削除されます。
+連絡先: launchcircle.server@gmail.com</string>
+    <string name="select_files">.sdocxファイルを選択</string>
+    <string name="select_folder">フォルダを選択</string>
+    <string name="empty_state">.sdocxファイルが選択されていません</string>
+    <string name="select_empty_help">開始するにはSamsung Notesの書き出しを1つ以上選択してください。</string>
+    <string name="stage_select">選択</string>
+    <string name="stage_preflight">事前確認</string>
+    <string name="stage_options">オプション</string>
+    <string name="stage_converting">変換中</string>
+    <string name="stage_result">結果</string>
+    <string name="files_selected">%1$d個の.sdocxファイルを選択</string>
+    <string name="files_discovered">検出された.sdocxファイル: %1$d</string>
+    <string name="scanning_notes">ノート%1$d/%2$dをスキャン中</string>
+    <string name="preflight_summary">インポート診断</string>
+    <string name="preflight_readable">読み取り可能なSDOCX: %1$d</string>
+    <string name="preflight_locked">ロック: %1$d</string>
+    <string name="preflight_corrupt">破損または失敗: %1$d</string>
+    <string name="preflight_text">テキストを含む: %1$d</string>
+    <string name="preflight_handwriting">手書きを含む: %1$d</string>
+    <string name="preflight_media">画像またはメディアを含む: %1$d</string>
+    <string name="options_description">ポータブルアーカイブの作成方法を選択してください。</string>
+    <string name="clean_markdown">クリーンMarkdown</string>
+    <string name="obsidian_rich">Obsidian Rich</string>
+    <string name="preserve_handwriting">手書きをSVGとして保持</string>
+    <string name="include_attachments">添付ファイルを含める</string>
+    <string name="include_originals">元の.sdocxファイルを含める</string>
+    <string name="save_zip">ZIPを保存</string>
+    <string name="cancel">キャンセル</string>
+    <string name="converting_progress">%2$d個中%1$d個を変換中: %3$s</string>
+    <string name="conversion_counters">完了: %1$d • 一部完了: %2$d • ロック: %3$d • 破損/失敗: %4$d</string>
+    <string name="result_summary">変換結果</string>
+    <string name="saved_zip">ZIPを保存しました: %1$s</string>
+    <string name="saved_zip_default">選択した保存先</string>
+    <string name="result_completed">完了: %1$d</string>
+    <string name="result_partial">一部完了: %1$d</string>
+    <string name="result_locked">ロック: %1$d</string>
+    <string name="result_corrupt_failed">破損/失敗: %1$d</string>
+    <string name="result_cancelled">変換をキャンセルしました。一時データを削除しました。</string>
+    <string name="error_message">エラー: %1$s</string>
+    <string name="unknown_error">不明なエラー</string>
+    <string name="destination_open_error">選択した保存先を開けません。</string>
+    <string name="default_zip_filename">NotesEscape.zip</string>
+    <string name="portable_markdown">ポータブルMarkdown</string>
+    <string name="obsidian_vault">Obsidian Vault</string>
+    <string name="folder_structure_help">「フォルダを選択」を使うとフォルダ構造が保持されます。</string>
+    <string name="preserve_folder_structure">フォルダ構造を保持</string>
+    <string name="folder_structure_title">フォルダ構造</string>
+    <string name="folder_structure_preserved">✓ 選択したフォルダから保持</string>
+    <string name="folder_structure_unavailable">個別ファイルの選択では利用できません</string>
+    <string name="folder_structure_use_folder">サブフォルダを保持するには「フォルダを選択」を使ってください。</string>
+    <string name="obsidian_description">Notes/、Attachments/、移行レポートを含むObsidian用ZIPを作成します。</string>
+    <string name="keep_images_attachments">画像と添付ファイルを保持</string>
+    <string name="convert_handwriting_svg">手書きをSVGに変換</string>
+    <string name="add_note_metadata">ノートのメタデータを追加</string>
+    <string name="vault_notes">ノート: %1$d</string>
+    <string name="vault_folders">フォルダ: %1$d</string>
+    <string name="vault_images_media">画像/メディア: %1$d</string>
+    <string name="vault_handwriting">手書き: %1$d</string>
+    <string name="vault_attachments">添付ファイル: %1$d</string>
+    <string name="selected_files_root">選択したファイルはVaultのルートに書き出されます。</string>
+    <string name="more_folders">+ %1$d個のフォルダ</string>
+    <string name="folder_summary_row">  %1$s    %2$d</string>
+    <string name="obsidian_vault_ready">Obsidian Vaultの準備完了</string>
+    <string name="result_vault_notes">%1$d個のノートを変換</string>
+    <string name="result_vault_folders">%1$d個のフォルダを保持</string>
+    <string name="result_vault_images">%1$d個の画像/メディアを保持</string>
+    <string name="result_vault_handwriting">%1$dページの手書きを保持</string>
+    <string name="result_vault_attachments">%1$d個の添付ファイルを保持</string>
+    <string name="result_vault_partial">%1$d個が一部完了</string>
+    <string name="result_vault_failed">%1$d個が失敗</string>
+    <string name="vault_ready_message">Obsidian Vaultとして展開して開く準備ができました。</string>
+    <string name="vault_warning_message">警告付きでVaultを作成しました。移行レポートを確認してください。</string>
+    <string name="vault_failed_message">一部のノートを変換できませんでした。移行レポートを確認してください。</string>
+    <string name="default_markdown_zip_filename">NotesEscape-Markdown.zip</string>
+    <string name="default_obsidian_zip_filename">NotesEscape-Obsidian-Vault.zip</string>
+    <plurals name="files_selected_plural">
+      <item quantity="one">%1$d個の.sdocxファイルを選択</item>
+      <item quantity="other">%1$d個の.sdocxファイルを選択</item>
+    </plurals>
+    <string name="support_email">launchcircle.server@gmail.com</string>
+    <string name="send_feedback">フィードバックを送信</string>
+    <string name="feedback_subject">Notes Escape SDOCX テストフィードバック</string>
+    <string name="feedback_body">アプリのバージョン: %1$s
+Android のバージョン: %2$s
+端末メーカー/モデル: %3$s
+
+テストした .sdocx ファイル数:
+単一ファイルまたはフォルダー:
+変換は完了しましたか:
+Markdown の内容は正しいですか:
+添付ファイルは保持されましたか:
+ZIP は正しく開きましたか:
+Obsidian へのインポート/利用結果:
+部分変換/ロック/失敗したファイル:
+問題または提案:</string>
+    <string name="no_email_app">対応するメールアプリがありません。</string>
+    <string name="open_output">ZIP を開く</string>
+    <string name="no_output_app">この ZIP を開ける対応アプリがありません。</string>
+</resources>

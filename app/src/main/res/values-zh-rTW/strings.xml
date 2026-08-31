@@ -1,0 +1,129 @@
+<resources>
+    <string name="app_name">筆記匯出：SDOCX</string>
+    <string name="processed_locally">完全在此裝置上處理</string>
+    <string name="no_upload_account">不上傳 • 不需要帳戶</string>
+    <string name="home_description">將 Samsung Notes 的 .sdocx 匯出檔轉換為可攜式 Markdown / Obsidian 相容 ZIP 封存檔。</string>
+    <string name="about_help">關於 / 說明</string>
+    <string name="privacy">隱私權</string>
+    <string name="dismiss">關閉</string>
+    <string name="about_description">Notes Escape 是一款用於 Samsung Notes .sdocx 匯出的獨立本機移轉工具。</string>
+    <string name="about_what_is_title">.sdocx 是什麼？</string>
+    <string name="about_what_is_body">.sdocx 是 Samsung Notes 的匯出格式。選取檔案或資料夾即可建立可攜式 ZIP 封存檔。</string>
+    <string name="about_export_title">從 Samsung Notes 匯出</string>
+    <string name="about_export_steps">Samsung Notes
+→ 開啟或選取筆記
+→ 另存為檔案 / 分享
+→ Samsung Notes 檔案
+→ .sdocx
+選單名稱可能因 Samsung Notes 版本而異。需要轉換 SDOCX 時，請勿選取 DOCX 或 PDF。</string>
+    <string name="about_preserves_title">本應用程式會保留的內容</string>
+    <string name="about_preserves_body">輸入文字、Unicode 和 RTL 文字、可用的圖片與媒體、支援時以 SVG 保存的手寫內容、附件，以及可選的原始 .sdocx 檔案。</string>
+    <string name="about_limitations_title">已知限制</string>
+    <string name="about_limitations_body">部分 Samsung Notes 格式可能無法完全準確地轉換。
+複雜表格、公式、專有物件以及新舊 SDOCX 變體可能只能部分轉換。
+鎖定的筆記必須先在 Samsung Notes 中解除鎖定。
+不保證保留原始頁面配置。
+豐富格式支援取決於 Samsung Notes 版本。
+原始 .sdocx 檔案可以保存在移轉 ZIP 中。</string>
+    <string name="independent_disclaimer">Notes Escape 是獨立的移轉工具，與 Samsung 沒有關聯，也未獲 Samsung 認可或贊助。</string>
+    <string name="privacy_title">隱私權</string>
+    <string name="privacy_body">轉換完全在此裝置本機執行。檔案不會上傳或分享。沒有帳戶、廣告、分析、後端或網際網路權限。請使用 Android 檔案選擇器選取來源檔案和 ZIP 儲存位置。轉換期間可能產生暫存快取檔案，並會在完成、取消、失敗及應用程式啟動時清除。
+聯絡方式：launchcircle.server@gmail.com</string>
+    <string name="select_files">選取 .sdocx 檔案</string>
+    <string name="select_folder">選取資料夾</string>
+    <string name="empty_state">未選取 .sdocx 檔案</string>
+    <string name="select_empty_help">請選取一個或多個 Samsung Notes 匯出檔以開始。</string>
+    <string name="stage_select">選取</string>
+    <string name="stage_preflight">預先檢查</string>
+    <string name="stage_options">選項</string>
+    <string name="stage_converting">轉換中</string>
+    <string name="stage_result">結果</string>
+    <string name="files_selected">已選取 %1$d 個 .sdocx 檔案</string>
+    <string name="files_discovered">找到的 .sdocx 檔案：%1$d</string>
+    <string name="scanning_notes">正在掃描第 %1$d/%2$d 個筆記</string>
+    <string name="preflight_summary">匯入診斷</string>
+    <string name="preflight_readable">可讀取的 SDOCX：%1$d</string>
+    <string name="preflight_locked">已鎖定：%1$d</string>
+    <string name="preflight_corrupt">損壞或失敗：%1$d</string>
+    <string name="preflight_text">包含文字：%1$d</string>
+    <string name="preflight_handwriting">包含手寫內容：%1$d</string>
+    <string name="preflight_media">包含圖片或媒體：%1$d</string>
+    <string name="options_description">選擇可攜式封存檔的寫入方式。</string>
+    <string name="clean_markdown">簡潔 Markdown</string>
+    <string name="obsidian_rich">Obsidian 豐富格式</string>
+    <string name="preserve_handwriting">將手寫內容保留為 SVG</string>
+    <string name="include_attachments">包含附件</string>
+    <string name="include_originals">包含原始 .sdocx 檔案</string>
+    <string name="save_zip">儲存 ZIP</string>
+    <string name="cancel">取消</string>
+    <string name="converting_progress">正在轉換第 %1$d/%2$d：%3$s</string>
+    <string name="conversion_counters">已完成：%1$d • 部分完成：%2$d • 已鎖定：%3$d • 損壞/失敗：%4$d</string>
+    <string name="result_summary">轉換結果</string>
+    <string name="saved_zip">ZIP 已儲存：%1$s</string>
+    <string name="saved_zip_default">選取的位置</string>
+    <string name="result_completed">已完成：%1$d</string>
+    <string name="result_partial">部分完成：%1$d</string>
+    <string name="result_locked">已鎖定：%1$d</string>
+    <string name="result_corrupt_failed">損壞/失敗：%1$d</string>
+    <string name="result_cancelled">轉換已取消。暫存資料已清除。</string>
+    <string name="error_message">錯誤：%1$s</string>
+    <string name="unknown_error">未知錯誤</string>
+    <string name="destination_open_error">無法開啟選取的位置。</string>
+    <string name="default_zip_filename">NotesEscape.zip</string>
+    <string name="portable_markdown">可攜式 Markdown</string>
+    <string name="obsidian_vault">Obsidian 保存庫</string>
+    <string name="folder_structure_help">使用「選取資料夾」時會保留資料夾結構。</string>
+    <string name="preserve_folder_structure">保留資料夾結構</string>
+    <string name="folder_structure_title">資料夾結構</string>
+    <string name="folder_structure_preserved">✓ 已從選取的資料夾保留</string>
+    <string name="folder_structure_unavailable">選取個別檔案時無法使用</string>
+    <string name="folder_structure_use_folder">若要保留子資料夾，請使用「選取資料夾」。</string>
+    <string name="obsidian_description">建立包含 Notes/、Attachments/ 和移轉報告的 Obsidian 就緒 ZIP。</string>
+    <string name="keep_images_attachments">保留圖片和附件</string>
+    <string name="convert_handwriting_svg">將手寫內容轉換為 SVG</string>
+    <string name="add_note_metadata">加入筆記中繼資料</string>
+    <string name="vault_notes">筆記：%1$d</string>
+    <string name="vault_folders">資料夾：%1$d</string>
+    <string name="vault_images_media">圖片/媒體：%1$d</string>
+    <string name="vault_handwriting">手寫內容：%1$d</string>
+    <string name="vault_attachments">附件：%1$d</string>
+    <string name="selected_files_root">選取的檔案會匯出到保存庫根目錄。</string>
+    <string name="more_folders">+ %1$d 個其他資料夾</string>
+    <string name="folder_summary_row">  %1$s    %2$d</string>
+    <string name="obsidian_vault_ready">Obsidian 保存庫已就緒</string>
+    <string name="result_vault_notes">已轉換 %1$d 個筆記</string>
+    <string name="result_vault_folders">已保留 %1$d 個資料夾</string>
+    <string name="result_vault_images">已保留 %1$d 個圖片/媒體</string>
+    <string name="result_vault_handwriting">已保留 %1$d 頁手寫內容</string>
+    <string name="result_vault_attachments">已保留 %1$d 個附件</string>
+    <string name="result_vault_partial">部分完成 %1$d 個</string>
+    <string name="result_vault_failed">失敗 %1$d 個</string>
+    <string name="vault_ready_message">可以擷取並以 Obsidian 保存庫開啟。</string>
+    <string name="vault_warning_message">保存庫已建立但有警告。請查看移轉報告。</string>
+    <string name="vault_failed_message">部分筆記無法轉換。請查看移轉報告。</string>
+    <string name="default_markdown_zip_filename">NotesEscape-Markdown.zip</string>
+    <string name="default_obsidian_zip_filename">NotesEscape-Obsidian-Vault.zip</string>
+    <plurals name="files_selected_plural">
+      <item quantity="one">已選取 %1$d 個 .sdocx 檔案</item>
+      <item quantity="other">已選取 %1$d 個 .sdocx 檔案</item>
+    </plurals>
+    <string name="support_email">launchcircle.server@gmail.com</string>
+    <string name="send_feedback">傳送意見</string>
+    <string name="feedback_subject">Notes Escape SDOCX 測試意見</string>
+    <string name="feedback_body">應用程式版本：%1$s
+Android 版本：%2$s
+手機製造商/型號：%3$s
+
+測試了多少個 .sdocx 檔案？
+單一檔案還是資料夾？
+轉換是否完成？
+Markdown 內容是否正確？
+附件是否保留？
+ZIP 是否正常開啟？
+Obsidian 匯入/使用結果：
+部分轉換/鎖定/失敗的檔案：
+問題或建議：</string>
+    <string name="no_email_app">沒有可用的相容電子郵件應用程式。</string>
+    <string name="open_output">開啟 ZIP</string>
+    <string name="no_output_app">沒有相容的應用程式可以開啟此 ZIP。</string>
+</resources>

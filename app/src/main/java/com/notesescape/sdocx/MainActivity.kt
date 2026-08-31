@@ -1,5 +1,6 @@
 package com.notesescape.sdocx
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -93,7 +94,8 @@ private data class ConversionSummary(
     val attachments: Int = 0,
     val failed: Int = 0,
     val cancelled: Boolean = false,
-    val savedFile: String? = null
+    val savedFile: String? = null,
+    val savedUri: Uri? = null
 )
 
 private data class ConversionProgress(
@@ -224,7 +226,10 @@ private fun NotesEscapeApp(incoming: Intent) {
                     } ?: error(resources.getString(R.string.destination_open_error))
                     temporaryArchive.delete()
                     withContext(Dispatchers.Main) {
-                        result = archive.summary().toUiSummary(format).copy(savedFile = destination.lastPathSegment ?: resources.getString(R.string.saved_zip_default))
+                        result = archive.summary().toUiSummary(format).copy(
+                            savedFile = destination.lastPathSegment ?: resources.getString(R.string.saved_zip_default),
+                            savedUri = destination
+                        )
                         stage = UiStage.RESULT
                     }
                     } finally {
@@ -313,7 +318,24 @@ private fun NotesEscapeApp(incoming: Intent) {
                 item { OutlinedButton(onClick = ::cancel, Modifier.fillMaxWidth()) { Text(stringResource(R.string.cancel)) } }
             }
             if (stage == UiStage.RESULT) {
-                item { ResultContent(result, format, folderImport) }
+                item {
+                    ResultContent(result, format, folderImport) {
+                        val output = result.savedUri
+                        if (output == null) {
+                            errorMessage = resources.getString(R.string.no_output_app)
+                        } else {
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                setDataAndType(output, "application/zip")
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(intent)
+                            } else {
+                                errorMessage = resources.getString(R.string.no_output_app)
+                            }
+                        }
+                    }
+                }
                 errorMessage?.let { item { Text(stringResource(R.string.error_message, it), color = MaterialTheme.colorScheme.error) } }
             }
             if (stage == UiStage.SELECT && sources.isEmpty()) item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.select_empty_help)) }
@@ -370,7 +392,7 @@ private val UiStage.stringRes: Int
     }
 }
 
-@Composable private fun ResultContent(summary: ConversionSummary, format: ExportFormat, folderImport: Boolean) {
+@Composable private fun ResultContent(summary: ConversionSummary, format: ExportFormat, folderImport: Boolean, onOpenOutput: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         if (format.isObsidian) {
             Text(stringResource(R.string.obsidian_vault_ready), style = MaterialTheme.typography.titleMedium)
@@ -384,6 +406,11 @@ private val UiStage.stringRes: Int
             Text(stringResource(if (summary.failed > 0) R.string.vault_failed_message else if (summary.partial > 0) R.string.vault_warning_message else R.string.vault_ready_message))
         } else Text(stringResource(R.string.result_summary))
         summary.savedFile?.let { Text(stringResource(R.string.saved_zip, it), color = MaterialTheme.colorScheme.primary) }
+        if (summary.savedUri != null) {
+            OutlinedButton(onClick = onOpenOutput, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.open_output))
+            }
+        }
         if (!format.isObsidian) {
             Text(stringResource(R.string.result_completed, summary.completed))
             Text(stringResource(R.string.result_partial, summary.partial))
@@ -396,6 +423,8 @@ private val UiStage.stringRes: Int
 
 @Composable
 private fun AboutHelpDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    var feedbackUnavailable by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.about_help)) },
@@ -411,10 +440,34 @@ private fun AboutHelpDialog(onDismiss: () -> Unit) {
                 Text(stringResource(R.string.about_limitations_title), style = MaterialTheme.typography.titleMedium)
                 Text(stringResource(R.string.about_limitations_body))
                 Text(stringResource(R.string.independent_disclaimer), style = MaterialTheme.typography.bodyMedium)
+                TextButton(onClick = {
+                    val intent = feedbackIntent(context)
+                    if (intent.resolveActivity(context.packageManager) != null) {
+                        context.startActivity(intent)
+                        feedbackUnavailable = false
+                    } else {
+                        feedbackUnavailable = true
+                    }
+                }) { Text(stringResource(R.string.send_feedback)) }
+                if (feedbackUnavailable) {
+                    Text(stringResource(R.string.no_email_app), color = MaterialTheme.colorScheme.error)
+                }
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dismiss)) } }
     )
+}
+
+private fun feedbackIntent(context: Context): Intent {
+    val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+    val version = packageInfo.versionName ?: "?"
+    val androidVersion = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+    val device = "${Build.MANUFACTURER} ${Build.MODEL}".trim()
+    return Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:${context.getString(R.string.support_email)}")
+        putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.feedback_subject))
+        putExtra(Intent.EXTRA_TEXT, context.getString(R.string.feedback_body, version, androidVersion, device))
+    }
 }
 
 @Composable

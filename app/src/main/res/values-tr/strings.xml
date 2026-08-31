@@ -1,0 +1,129 @@
+<resources>
+    <string name="app_name">Not Defteri Dışa Aktarma: SDOCX</string>
+    <string name="processed_locally">Tamamen bu cihazda işlenir</string>
+    <string name="no_upload_account">Yükleme yok • Hesap yok</string>
+    <string name="home_description">Samsung Notes .sdocx dışa aktarmalarını taşınabilir Markdown / Obsidian uyumlu ZIP arşivine dönüştürün.</string>
+    <string name="about_help">Hakkında / Yardım</string>
+    <string name="privacy">Gizlilik</string>
+    <string name="dismiss">Kapat</string>
+    <string name="about_description">Notes Escape, Samsung Notes .sdocx dışa aktarmaları için bağımsız bir yerel aktarım aracıdır.</string>
+    <string name="about_what_is_title">.sdocx nedir?</string>
+    <string name="about_what_is_body">.sdocx, Samsung Notes dışa aktarma biçimidir. Taşınabilir bir ZIP arşivi oluşturmak için dosya veya klasör seçin.</string>
+    <string name="about_export_title">Samsung Notes\'tan dışa aktar</string>
+    <string name="about_export_steps">Samsung Notes
+→ Bir notu açın veya seçin
+→ Dosya olarak kaydedin / Paylaşın
+→ Samsung Notes dosyası
+→ .sdocx
+Menü adları Samsung Notes sürümüne göre değişebilir. SDOCX dönüştürmek için DOCX veya PDF seçmeyin.</string>
+    <string name="about_preserves_title">Bu uygulama neleri korur</string>
+    <string name="about_preserves_body">Yazılan metin, Unicode ve RTL metni, mevcut görüntü ve medya, desteklendiğinde SVG el yazısı, ekler ve isteğe bağlı özgün .sdocx dosyaları.</string>
+    <string name="about_limitations_title">Bilinen sınırlamalar</string>
+    <string name="about_limitations_body">Bazı Samsung Notes biçimlendirmeleri tam olarak dönüştürülemeyebilir.
+Karmaşık tablolar, formüller, özel nesneler veya yeni ve eski SDOCX varyantları kısmen dönüştürülebilir.
+Kilitli notların dışa aktarmadan önce Samsung Notes\'ta kilidi açılmalıdır.
+Özgün sayfa düzeni garanti edilmez.
+Zengin biçimlendirme desteği Samsung Notes sürümüne göre değişir.
+Özgün .sdocx dosyaları aktarım ZIP\'inde korunabilir.</string>
+    <string name="independent_disclaimer">Notes Escape bağımsız bir aktarım aracıdır; Samsung ile bağlantılı değildir ve Samsung tarafından desteklenmez veya sponsor edilmez.</string>
+    <string name="privacy_title">Gizlilik</string>
+    <string name="privacy_body">Dönüştürme bu cihazda yerel olarak yapılır. Dosyalar yüklenmez veya paylaşılmaz. Hesap, reklam, analiz, arka uç veya İnternet izni yoktur. Kaynak dosyaları ve ZIP hedefini Android dosya seçiciyle siz seçersiniz. Dönüştürme sırasında geçici önbellek dosyaları oluşabilir; işlem tamamlandığında, iptal edildiğinde, başarısız olduğunda ve uygulama başlatıldığında temizlenir.
+İletişim: launchcircle.server@gmail.com</string>
+    <string name="select_files">.sdocx dosyalarını seç</string>
+    <string name="select_folder">Klasör seç</string>
+    <string name="empty_state">Hiçbir .sdocx dosyası seçilmedi</string>
+    <string name="select_empty_help">Başlamak için bir veya daha fazla Samsung Notes dışa aktarması seçin.</string>
+    <string name="stage_select">SEÇ</string>
+    <string name="stage_preflight">ÖN KONTROL</string>
+    <string name="stage_options">SEÇENEKLER</string>
+    <string name="stage_converting">DÖNÜŞTÜRÜLÜYOR</string>
+    <string name="stage_result">SONUÇ</string>
+    <string name="files_selected">%1$d .sdocx dosyası seçildi</string>
+    <string name="files_discovered">Bulunan .sdocx dosyaları: %1$d</string>
+    <string name="scanning_notes">%2$d nottan %1$d. not taranıyor</string>
+    <string name="preflight_summary">İçe aktarma tanılaması</string>
+    <string name="preflight_readable">Okunabilir SDOCX: %1$d</string>
+    <string name="preflight_locked">Kilitli: %1$d</string>
+    <string name="preflight_corrupt">Bozuk veya başarısız: %1$d</string>
+    <string name="preflight_text">Metin içeriyor: %1$d</string>
+    <string name="preflight_handwriting">El yazısı içeriyor: %1$d</string>
+    <string name="preflight_media">Görüntü veya medya içeriyor: %1$d</string>
+    <string name="options_description">Taşınabilir arşivin nasıl yazılacağını seçin.</string>
+    <string name="clean_markdown">Temiz Markdown</string>
+    <string name="obsidian_rich">Obsidian Rich</string>
+    <string name="preserve_handwriting">El yazısını SVG olarak koru</string>
+    <string name="include_attachments">Ekleri dahil et</string>
+    <string name="include_originals">Özgün .sdocx dosyalarını dahil et</string>
+    <string name="save_zip">ZIP\'i kaydet</string>
+    <string name="cancel">İptal</string>
+    <string name="converting_progress">%2$d içinden %1$d dönüştürülüyor: %3$s</string>
+    <string name="conversion_counters">Tamamlanan: %1$d • Kısmi: %2$d • Kilitli: %3$d • Bozuk/başarısız: %4$d</string>
+    <string name="result_summary">Dönüştürme sonucu</string>
+    <string name="saved_zip">ZIP kaydedildi: %1$s</string>
+    <string name="saved_zip_default">seçilen hedef</string>
+    <string name="result_completed">Tamamlanan: %1$d</string>
+    <string name="result_partial">Kısmi: %1$d</string>
+    <string name="result_locked">Kilitli: %1$d</string>
+    <string name="result_corrupt_failed">Bozuk/başarısız: %1$d</string>
+    <string name="result_cancelled">Dönüştürme iptal edildi. Geçici veriler temizlendi.</string>
+    <string name="error_message">Hata: %1$s</string>
+    <string name="unknown_error">Bilinmeyen hata</string>
+    <string name="destination_open_error">Seçilen hedef açılamıyor.</string>
+    <string name="default_zip_filename">NotesEscape.zip</string>
+    <string name="portable_markdown">Taşınabilir Markdown</string>
+    <string name="obsidian_vault">Obsidian Kasası</string>
+    <string name="folder_structure_help">Klasör Seç kullanıldığında klasör yapısı korunur.</string>
+    <string name="preserve_folder_structure">Klasör yapısını koru</string>
+    <string name="folder_structure_title">Klasör yapısı</string>
+    <string name="folder_structure_preserved">✓ Seçilen klasörden korundu</string>
+    <string name="folder_structure_unavailable">Tek tek dosya seçiminde kullanılamaz</string>
+    <string name="folder_structure_use_folder">Alt klasörleri korumak için Klasör Seç\'i kullanın.</string>
+    <string name="obsidian_description">Notes/, Attachments/ ve aktarım raporlarını içeren Obsidian\'a hazır bir ZIP oluşturur.</string>
+    <string name="keep_images_attachments">Görüntüleri ve ekleri koru</string>
+    <string name="convert_handwriting_svg">El yazısını SVG\'ye dönüştür</string>
+    <string name="add_note_metadata">Not meta verilerini ekle</string>
+    <string name="vault_notes">Notlar: %1$d</string>
+    <string name="vault_folders">Klasörler: %1$d</string>
+    <string name="vault_images_media">Görüntüler/medya: %1$d</string>
+    <string name="vault_handwriting">El yazısı: %1$d</string>
+    <string name="vault_attachments">Ekler: %1$d</string>
+    <string name="selected_files_root">Seçilen dosyalar kasa köküne aktarılacak.</string>
+    <string name="more_folders">+ %1$d klasör daha</string>
+    <string name="folder_summary_row">  %1$s    %2$d</string>
+    <string name="obsidian_vault_ready">Obsidian Kasası hazır</string>
+    <string name="result_vault_notes">%1$d not dönüştürüldü</string>
+    <string name="result_vault_folders">%1$d klasör korundu</string>
+    <string name="result_vault_images">%1$d görüntü/medya korundu</string>
+    <string name="result_vault_handwriting">%1$d el yazısı sayfası korundu</string>
+    <string name="result_vault_attachments">%1$d ek korundu</string>
+    <string name="result_vault_partial">%1$d kısmi</string>
+    <string name="result_vault_failed">%1$d başarısız</string>
+    <string name="vault_ready_message">Obsidian kasası olarak çıkarmaya ve açmaya hazır.</string>
+    <string name="vault_warning_message">Kasa uyarılarla oluşturuldu. Aktarım raporunu inceleyin.</string>
+    <string name="vault_failed_message">Bazı notlar dönüştürülemedi. Aktarım raporunu inceleyin.</string>
+    <string name="default_markdown_zip_filename">NotesEscape-Markdown.zip</string>
+    <string name="default_obsidian_zip_filename">NotesEscape-Obsidian-Vault.zip</string>
+    <plurals name="files_selected_plural">
+      <item quantity="one">%1$d .sdocx dosyası seçildi</item>
+      <item quantity="other">%1$d .sdocx dosyası seçildi</item>
+    </plurals>
+    <string name="support_email">launchcircle.server@gmail.com</string>
+    <string name="send_feedback">Geri bildirim gönder</string>
+    <string name="feedback_subject">Notes Escape SDOCX test geri bildirimi</string>
+    <string name="feedback_body">Uygulama sürümü: %1$s
+Android sürümü: %2$s
+Telefon üreticisi/modeli: %3$s
+
+Kaç .sdocx dosyası test ettiniz?
+Tek dosya mı, klasör mü?
+Dönüştürme tamamlandı mı?
+Markdown içeriği doğru mu?
+Ekler korundu mu?
+ZIP doğru açıldı mı?
+Obsidian içe aktarma/kullanım sonucu:
+Kısmi/kilitli/başarısız dosyalar:
+Sorun veya öneri:</string>
+    <string name="no_email_app">Uyumlu bir e-posta uygulaması yok.</string>
+    <string name="open_output">ZIP’i aç</string>
+    <string name="no_output_app">Bu ZIP’i açabilecek uyumlu bir uygulama yok.</string>
+</resources>

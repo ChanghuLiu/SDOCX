@@ -21,4 +21,15 @@ class MainActivityStringAuditTest {
         assertTrue(source.contains("R.string.obsidian_vault_ready"))
         assertTrue(source.contains("R.string.folder_structure_unavailable"))
     }
+
+    @Test
+    fun feedbackAndOutputVerificationUseUserInitiatedIntents() {
+        val source = File("src/main/java/com/notesescape/sdocx/MainActivity.kt").readText()
+        assertTrue(source.contains("Intent.ACTION_SENDTO"))
+        assertTrue(source.contains("mailto:"))
+        assertTrue(source.contains("feedback_body"))
+        assertTrue(source.contains("Intent.ACTION_VIEW"))
+        assertTrue(source.contains("savedUri"))
+        assertTrue(source.contains("FLAG_GRANT_READ_URI_PERMISSION"))
+    }
 }
