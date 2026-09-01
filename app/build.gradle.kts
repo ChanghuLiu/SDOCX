@@ -29,7 +29,7 @@ android {
 
     defaultConfig {
         applicationId = "com.notesescape.sdocx"
-        minSdk = 26
+        minSdk = 27
         targetSdk = 36
         versionCode = 8
         versionName = "1.2.1"
