@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">Akses seumur hidup terbuka</string>
+    <string name="access_trial_available">Uji kompatibilitas gratis: 1 ekspor satu catatan</string>
+    <string name="access_trial_used">Uji coba gratis sudah digunakan — perlu buka seumur hidup</string>
+    <string name="access_trial_explainer">Uji coba gratis hanya terpakai setelah ZIP berhasil disimpan dengan setidaknya satu catatan yang dikonversi.</string>
+    <string name="lifetime_unlock_title">Buka Notes Escape seumur hidup</string>
+    <string name="lifetime_unlock_body">Pembelian satu kali. Buka ekspor tanpa batas untuk satu file, batch, dan folder pada akun Google Play ini. Tanpa langganan.</string>
+    <string name="trial_single_note_only">Uji kompatibilitas gratis mencakup satu catatan .sdocx. Pilih satu file untuk menggunakan uji coba, atau buka akses seumur hidup untuk ekspor batch dan folder.</string>
+    <string name="trial_used_explainer">Ekspor gratis yang berhasil sudah digunakan. Buka akses seumur hidup untuk terus mengekspor.</string>
+    <string name="unlock_button">Buka seumur hidup</string>
+    <string name="unlock_button_price">Buka seumur hidup — %1$s</string>
+    <string name="restore_purchase">Pulihkan pembelian</string>
+    <string name="not_now">Nanti</string>
+    <string name="billing_connecting">Menghubungkan ke Google Play…</string>
+    <string name="billing_unavailable">Pembelian seumur hidup belum tersedia. Instal atau perbarui melalui Google Play lalu coba lagi.</string>
+    <string name="billing_purchase_failed">Google Play tidak dapat memulai pembelian. Silakan coba lagi.</string>
+    <string name="purchase_pending">Pembelian tertunda. Akses akan terbuka setelah Google Play mengonfirmasi pembayaran.</string>
+</resources>

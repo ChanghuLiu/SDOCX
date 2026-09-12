@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">Ömür boyu erişim açıldı</string>
+    <string name="access_trial_available">Ücretsiz uyumluluk denemesi: 1 tek not dışa aktarma</string>
+    <string name="access_trial_used">Ücretsiz deneme kullanıldı — ömür boyu kilit açma gerekli</string>
+    <string name="access_trial_explainer">Ücretsiz deneme yalnızca en az bir dönüştürülmüş not içeren ZIP başarıyla kaydedildikten sonra kullanılmış sayılır.</string>
+    <string name="lifetime_unlock_title">Notes Escape’i ömür boyu aç</string>
+    <string name="lifetime_unlock_body">Tek seferlik satın alma. Bu Google Play hesabında tek dosya, toplu ve klasör dışa aktarmalarını sınırsız açın. Abonelik yok.</string>
+    <string name="trial_single_note_only">Ücretsiz uyumluluk denemesi tek bir .sdocx notunu kapsar. Denemeyi kullanmak için bir dosya seçin veya toplu ve klasör dışa aktarmaları için ömür boyu erişimi açın.</string>
+    <string name="trial_used_explainer">Başarılı ücretsiz dışa aktarmanız zaten kullanıldı. Dışa aktarmaya devam etmek için ömür boyu erişimi açın.</string>
+    <string name="unlock_button">Ömür boyu aç</string>
+    <string name="unlock_button_price">Ömür boyu aç — %1$s</string>
+    <string name="restore_purchase">Satın almayı geri yükle</string>
+    <string name="not_now">Şimdi değil</string>
+    <string name="billing_connecting">Google Play’e bağlanılıyor…</string>
+    <string name="billing_unavailable">Ömür boyu satın alma henüz kullanılamıyor. Google Play üzerinden yükleyin veya güncelleyin ve tekrar deneyin.</string>
+    <string name="billing_purchase_failed">Google Play satın alma işlemini başlatamadı. Lütfen tekrar deneyin.</string>
+    <string name="purchase_pending">Satın alma beklemede. Google Play ödemeyi onayladıktan sonra erişim açılacak.</string>
+</resources>

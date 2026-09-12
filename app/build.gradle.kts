@@ -70,6 +70,7 @@ android {
 dependencies {
     implementation(project(":sdocx-core"))
     implementation(project(":export-core"))
+    implementation("com.android.billingclient:billing:9.1.0")
     implementation("androidx.documentfile:documentfile:1.1.0")
     implementation("androidx.graphics:graphics-path:1.1.0")
     implementation(platform(libs.androidx.compose.bom))

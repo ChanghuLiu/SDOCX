@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">लाइफटाइम अनलॉक सक्रिय</string>
+    <string name="access_trial_available">मुफ़्त संगतता ट्रायल: 1 एकल-नोट एक्सपोर्ट</string>
+    <string name="access_trial_used">मुफ़्त ट्रायल उपयोग हो चुका — लाइफटाइम अनलॉक आवश्यक</string>
+    <string name="access_trial_explainer">मुफ़्त ट्रायल तभी उपयोग माना जाता है जब कम से कम एक कन्वर्ट किए गए नोट वाला ZIP सफलतापूर्वक सेव हो जाए।</string>
+    <string name="lifetime_unlock_title">Notes Escape को हमेशा के लिए अनलॉक करें</string>
+    <string name="lifetime_unlock_body">एक बार की खरीद। इस Google Play खाते पर असीमित एकल फ़ाइल, बैच और फ़ोल्डर एक्सपोर्ट अनलॉक करें। कोई सदस्यता नहीं।</string>
+    <string name="trial_single_note_only">मुफ़्त संगतता ट्रायल एक व्यक्तिगत .sdocx नोट के लिए है। ट्रायल के लिए एक फ़ाइल चुनें, या बैच और फ़ोल्डर एक्सपोर्ट के लिए लाइफटाइम एक्सेस अनलॉक करें।</string>
+    <string name="trial_used_explainer">आपका सफल मुफ़्त एक्सपोर्ट पहले ही उपयोग हो चुका है। आगे एक्सपोर्ट करने के लिए लाइफटाइम एक्सेस अनलॉक करें।</string>
+    <string name="unlock_button">लाइफटाइम अनलॉक</string>
+    <string name="unlock_button_price">लाइफटाइम अनलॉक — %1$s</string>
+    <string name="restore_purchase">खरीद पुनर्स्थापित करें</string>
+    <string name="not_now">अभी नहीं</string>
+    <string name="billing_connecting">Google Play से कनेक्ट हो रहा है…</string>
+    <string name="billing_unavailable">लाइफटाइम खरीद अभी उपलब्ध नहीं है। Google Play से इंस्टॉल या अपडेट करके फिर कोशिश करें।</string>
+    <string name="billing_purchase_failed">Google Play खरीद शुरू नहीं कर सका। कृपया फिर कोशिश करें।</string>
+    <string name="purchase_pending">खरीद लंबित है। Google Play द्वारा भुगतान की पुष्टि के बाद एक्सेस अनलॉक होगा।</string>
+</resources>

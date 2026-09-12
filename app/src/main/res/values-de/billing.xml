@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">Lebenslang freigeschaltet</string>
+    <string name="access_trial_available">Kostenloser Kompatibilitätstest: 1 Export einer einzelnen Notiz</string>
+    <string name="access_trial_used">Kostenloser Test verbraucht — lebenslange Freischaltung erforderlich</string>
+    <string name="access_trial_explainer">Der kostenlose Test wird erst verbraucht, wenn eine ZIP-Datei mit mindestens einer konvertierten Notiz erfolgreich gespeichert wurde.</string>
+    <string name="lifetime_unlock_title">Notes Escape lebenslang freischalten</string>
+    <string name="lifetime_unlock_body">Einmaliger Kauf. Schaltet unbegrenzte Einzel-, Stapel- und Ordnerexporte für dieses Google-Play-Konto frei. Kein Abo.</string>
+    <string name="trial_single_note_only">Der kostenlose Kompatibilitätstest gilt für eine einzelne .sdocx-Notiz. Wähle eine Datei für den Test oder schalte lebenslangen Zugriff für Stapel- und Ordnerexporte frei.</string>
+    <string name="trial_used_explainer">Dein erfolgreicher kostenloser Export wurde bereits verwendet. Schalte lebenslangen Zugriff frei, um weiter zu exportieren.</string>
+    <string name="unlock_button">Lebenslang freischalten</string>
+    <string name="unlock_button_price">Lebenslang freischalten — %1$s</string>
+    <string name="restore_purchase">Kauf wiederherstellen</string>
+    <string name="not_now">Nicht jetzt</string>
+    <string name="billing_connecting">Verbindung mit Google Play wird hergestellt…</string>
+    <string name="billing_unavailable">Der lebenslange Kauf ist noch nicht verfügbar. Installiere oder aktualisiere die App über Google Play und versuche es erneut.</string>
+    <string name="billing_purchase_failed">Google Play konnte den Kauf nicht starten. Bitte versuche es erneut.</string>
+    <string name="purchase_pending">Kauf ausstehend. Der Zugriff wird freigeschaltet, sobald Google Play die Zahlung bestätigt.</string>
+</resources>

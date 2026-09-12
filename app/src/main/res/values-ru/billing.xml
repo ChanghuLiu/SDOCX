@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">Пожизненный доступ разблокирован</string>
+    <string name="access_trial_available">Бесплатная проверка совместимости: 1 экспорт одной заметки</string>
+    <string name="access_trial_used">Бесплатная попытка использована — требуется пожизненная разблокировка</string>
+    <string name="access_trial_explainer">Бесплатная попытка считается использованной только после успешного сохранения ZIP хотя бы с одной преобразованной заметкой.</string>
+    <string name="lifetime_unlock_title">Разблокировать Notes Escape навсегда</string>
+    <string name="lifetime_unlock_body">Разовая покупка. Неограниченный экспорт отдельных файлов, пакетов и папок для этого аккаунта Google Play. Без подписки.</string>
+    <string name="trial_single_note_only">Бесплатная проверка совместимости действует для одной отдельной заметки .sdocx. Выберите один файл или разблокируйте пожизненный доступ для пакетного экспорта и папок.</string>
+    <string name="trial_used_explainer">Успешный бесплатный экспорт уже использован. Разблокируйте пожизненный доступ, чтобы продолжить экспорт.</string>
+    <string name="unlock_button">Разблокировать навсегда</string>
+    <string name="unlock_button_price">Разблокировать навсегда — %1$s</string>
+    <string name="restore_purchase">Восстановить покупку</string>
+    <string name="not_now">Не сейчас</string>
+    <string name="billing_connecting">Подключение к Google Play…</string>
+    <string name="billing_unavailable">Пожизненная покупка пока недоступна. Установите или обновите приложение через Google Play и попробуйте снова.</string>
+    <string name="billing_purchase_failed">Google Play не удалось начать покупку. Попробуйте снова.</string>
+    <string name="purchase_pending">Покупка ожидает подтверждения. Доступ будет открыт после подтверждения оплаты в Google Play.</string>
+</resources>

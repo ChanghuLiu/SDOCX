@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">Accès à vie débloqué</string>
+    <string name="access_trial_available">Essai de compatibilité gratuit : 1 export d’une seule note</string>
+    <string name="access_trial_used">Essai gratuit utilisé — déblocage à vie requis</string>
+    <string name="access_trial_explainer">L’essai gratuit n’est utilisé qu’après l’enregistrement réussi d’un ZIP contenant au moins une note convertie.</string>
+    <string name="lifetime_unlock_title">Débloquer Notes Escape à vie</string>
+    <string name="lifetime_unlock_body">Achat unique. Débloque un nombre illimité d’exports de fichiers, de lots et de dossiers sur ce compte Google Play. Aucun abonnement.</string>
+    <string name="trial_single_note_only">L’essai de compatibilité gratuit couvre une seule note .sdocx. Sélectionnez un fichier pour l’essai, ou débloquez l’accès à vie pour les exports par lots et par dossiers.</string>
+    <string name="trial_used_explainer">Votre export gratuit réussi a déjà été utilisé. Débloquez l’accès à vie pour continuer à exporter.</string>
+    <string name="unlock_button">Débloquer à vie</string>
+    <string name="unlock_button_price">Débloquer à vie — %1$s</string>
+    <string name="restore_purchase">Restaurer l’achat</string>
+    <string name="not_now">Pas maintenant</string>
+    <string name="billing_connecting">Connexion à Google Play…</string>
+    <string name="billing_unavailable">L’achat à vie n’est pas encore disponible. Installez ou mettez à jour l’application via Google Play, puis réessayez.</string>
+    <string name="billing_purchase_failed">Google Play n’a pas pu démarrer l’achat. Veuillez réessayer.</string>
+    <string name="purchase_pending">Achat en attente. L’accès sera débloqué après confirmation du paiement par Google Play.</string>
+</resources>

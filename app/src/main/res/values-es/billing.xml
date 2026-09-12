@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">Acceso de por vida desbloqueado</string>
+    <string name="access_trial_available">Prueba de compatibilidad gratis: 1 exportación de una nota</string>
+    <string name="access_trial_used">Prueba gratis utilizada — se requiere desbloqueo de por vida</string>
+    <string name="access_trial_explainer">La prueba gratis solo se consume después de guardar correctamente un ZIP con al menos una nota convertida.</string>
+    <string name="lifetime_unlock_title">Desbloquear Notes Escape de por vida</string>
+    <string name="lifetime_unlock_body">Compra única. Desbloquea exportaciones ilimitadas de archivos individuales, lotes y carpetas en esta cuenta de Google Play. Sin suscripción.</string>
+    <string name="trial_single_note_only">La prueba gratuita de compatibilidad cubre una sola nota .sdocx. Selecciona un archivo para usar la prueba o desbloquea el acceso de por vida para exportaciones por lotes y carpetas.</string>
+    <string name="trial_used_explainer">Ya has utilizado tu exportación gratuita correcta. Desbloquea el acceso de por vida para seguir exportando.</string>
+    <string name="unlock_button">Desbloquear de por vida</string>
+    <string name="unlock_button_price">Desbloquear de por vida — %1$s</string>
+    <string name="restore_purchase">Restaurar compra</string>
+    <string name="not_now">Ahora no</string>
+    <string name="billing_connecting">Conectando con Google Play…</string>
+    <string name="billing_unavailable">La compra de por vida aún no está disponible. Instala o actualiza desde Google Play y vuelve a intentarlo.</string>
+    <string name="billing_purchase_failed">Google Play no pudo iniciar la compra. Inténtalo de nuevo.</string>
+    <string name="purchase_pending">Compra pendiente. El acceso se desbloqueará cuando Google Play confirme el pago.</string>
+</resources>

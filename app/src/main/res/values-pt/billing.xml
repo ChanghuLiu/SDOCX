@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">Acesso vitalício desbloqueado</string>
+    <string name="access_trial_available">Teste de compatibilidade grátis: 1 exportação de uma nota</string>
+    <string name="access_trial_used">Teste grátis usado — desbloqueio vitalício necessário</string>
+    <string name="access_trial_explainer">O teste grátis só é usado depois que um ZIP com pelo menos uma nota convertida é salvo com sucesso.</string>
+    <string name="lifetime_unlock_title">Desbloquear Notes Escape para sempre</string>
+    <string name="lifetime_unlock_body">Compra única. Desbloqueie exportações ilimitadas de arquivos individuais, lotes e pastas nesta conta do Google Play. Sem assinatura.</string>
+    <string name="trial_single_note_only">O teste de compatibilidade grátis cobre uma única nota .sdocx. Selecione um arquivo para usar o teste ou desbloqueie o acesso vitalício para exportações em lote e de pastas.</string>
+    <string name="trial_used_explainer">Sua exportação grátis bem-sucedida já foi usada. Desbloqueie o acesso vitalício para continuar exportando.</string>
+    <string name="unlock_button">Desbloquear para sempre</string>
+    <string name="unlock_button_price">Desbloquear para sempre — %1$s</string>
+    <string name="restore_purchase">Restaurar compra</string>
+    <string name="not_now">Agora não</string>
+    <string name="billing_connecting">Conectando ao Google Play…</string>
+    <string name="billing_unavailable">A compra vitalícia ainda não está disponível. Instale ou atualize pelo Google Play e tente novamente.</string>
+    <string name="billing_purchase_failed">O Google Play não conseguiu iniciar a compra. Tente novamente.</string>
+    <string name="purchase_pending">Compra pendente. O acesso será desbloqueado após o Google Play confirmar o pagamento.</string>
+</resources>
