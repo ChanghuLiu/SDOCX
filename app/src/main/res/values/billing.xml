@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">Lifetime unlocked</string>
+    <string name="access_trial_available">Free compatibility trial: 1 single-note export</string>
+    <string name="access_trial_used">Free trial used — lifetime unlock required</string>
+    <string name="access_trial_explainer">The free trial is used only after a ZIP is successfully saved with at least one converted note.</string>
+    <string name="lifetime_unlock_title">Unlock Notes Escape for life</string>
+    <string name="lifetime_unlock_body">One-time purchase. Unlock unlimited single-file, batch, and folder exports on this Google Play account. No subscription.</string>
+    <string name="trial_single_note_only">Your free compatibility trial covers one individual .sdocx note. Select one file to use the trial, or unlock lifetime access for batch and folder exports.</string>
+    <string name="trial_used_explainer">Your successful free export has already been used. Unlock lifetime access to continue exporting.</string>
+    <string name="unlock_button">Unlock lifetime</string>
+    <string name="unlock_button_price">Unlock lifetime — %1$s</string>
+    <string name="restore_purchase">Restore purchase</string>
+    <string name="not_now">Not now</string>
+    <string name="billing_connecting">Connecting to Google Play…</string>
+    <string name="billing_unavailable">Lifetime purchase isn’t available yet. Install or update through Google Play and try again.</string>
+    <string name="billing_purchase_failed">Google Play couldn’t start the purchase. Please try again.</string>
+    <string name="purchase_pending">Purchase pending. Access unlocks after Google Play confirms payment.</string>
+</resources>
