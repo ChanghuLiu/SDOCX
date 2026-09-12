@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">買い切り版をアンロック済み</string>
+    <string name="access_trial_available">無料互換性トライアル：1件のノートを1回エクスポート</string>
+    <string name="access_trial_used">無料トライアル使用済み — 買い切り版のアンロックが必要です</string>
+    <string name="access_trial_explainer">無料トライアルは、変換されたノートを1件以上含むZIPが正常に保存された場合にのみ使用済みになります。</string>
+    <string name="lifetime_unlock_title">Notes Escapeを買い切りでアンロック</string>
+    <string name="lifetime_unlock_body">一度だけの購入です。このGoogle Playアカウントで単一ファイル、バッチ、フォルダのエクスポートを無制限に利用できます。サブスクリプションではありません。</string>
+    <string name="trial_single_note_only">無料互換性トライアルは、個別の.sdocxノート1件が対象です。1ファイルを選んで試すか、バッチ／フォルダ出力には買い切り版をアンロックしてください。</string>
+    <string name="trial_used_explainer">正常な無料エクスポートはすでに使用済みです。続けてエクスポートするには買い切り版をアンロックしてください。</string>
+    <string name="unlock_button">買い切り版をアンロック</string>
+    <string name="unlock_button_price">買い切り版をアンロック — %1$s</string>
+    <string name="restore_purchase">購入を復元</string>
+    <string name="not_now">今はしない</string>
+    <string name="billing_connecting">Google Playに接続しています…</string>
+    <string name="billing_unavailable">買い切り購入はまだ利用できません。Google Playからインストールまたは更新して、もう一度お試しください。</string>
+    <string name="billing_purchase_failed">Google Playで購入を開始できませんでした。もう一度お試しください。</string>
+    <string name="purchase_pending">購入は保留中です。Google Playが支払いを確認するとアクセスがアンロックされます。</string>
+</resources>

@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">已永久解鎖</string>
+    <string name="access_trial_available">免費相容性試用：可匯出 1 個單獨筆記</string>
+    <string name="access_trial_used">免費試用已使用 — 需要永久解鎖</string>
+    <string name="access_trial_explainer">只有在 ZIP 成功儲存且其中至少包含 1 個已轉換筆記時，才會使用免費試用。</string>
+    <string name="lifetime_unlock_title">永久解鎖 Notes Escape</string>
+    <string name="lifetime_unlock_body">一次性購買。在此 Google Play 帳號下永久解鎖單檔、批次與資料夾無限匯出。無需訂閱。</string>
+    <string name="trial_single_note_only">免費相容性試用僅適用於 1 個單獨的 .sdocx 筆記。請選擇 1 個檔案使用試用；批次或資料夾匯出需要永久解鎖。</string>
+    <string name="trial_used_explainer">你已完成並使用免費匯出。永久解鎖後即可繼續匯出。</string>
+    <string name="unlock_button">永久解鎖</string>
+    <string name="unlock_button_price">永久解鎖 — %1$s</string>
+    <string name="restore_purchase">恢復購買</string>
+    <string name="not_now">暫不</string>
+    <string name="billing_connecting">正在連線 Google Play…</string>
+    <string name="billing_unavailable">永久購買暫時無法使用。請透過 Google Play 安裝或更新後再試一次。</string>
+    <string name="billing_purchase_failed">Google Play 無法啟動購買，請再試一次。</string>
+    <string name="purchase_pending">購買正在等待處理。Google Play 確認付款後會自動解鎖。</string>
+</resources>

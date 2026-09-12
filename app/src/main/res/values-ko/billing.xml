@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">평생 이용권 잠금 해제됨</string>
+    <string name="access_trial_available">무료 호환성 체험: 단일 노트 1회 내보내기</string>
+    <string name="access_trial_used">무료 체험 사용 완료 — 평생 이용권 필요</string>
+    <string name="access_trial_explainer">무료 체험은 변환된 노트가 하나 이상 포함된 ZIP이 성공적으로 저장된 경우에만 사용 처리됩니다.</string>
+    <string name="lifetime_unlock_title">Notes Escape 평생 이용권 잠금 해제</string>
+    <string name="lifetime_unlock_body">일회성 구매입니다. 이 Google Play 계정에서 단일 파일, 일괄 및 폴더 내보내기를 무제한으로 이용할 수 있습니다. 구독이 아닙니다.</string>
+    <string name="trial_single_note_only">무료 호환성 체험은 개별 .sdocx 노트 하나에 적용됩니다. 파일 하나를 선택해 체험하거나, 일괄 및 폴더 내보내기를 위해 평생 이용권을 잠금 해제하세요.</string>
+    <string name="trial_used_explainer">성공한 무료 내보내기를 이미 사용했습니다. 계속 내보내려면 평생 이용권을 잠금 해제하세요.</string>
+    <string name="unlock_button">평생 이용권 잠금 해제</string>
+    <string name="unlock_button_price">평생 이용권 잠금 해제 — %1$s</string>
+    <string name="restore_purchase">구매 복원</string>
+    <string name="not_now">나중에</string>
+    <string name="billing_connecting">Google Play에 연결 중…</string>
+    <string name="billing_unavailable">평생 구매를 아직 사용할 수 없습니다. Google Play에서 설치하거나 업데이트한 뒤 다시 시도하세요.</string>
+    <string name="billing_purchase_failed">Google Play에서 구매를 시작하지 못했습니다. 다시 시도하세요.</string>
+    <string name="purchase_pending">구매가 보류 중입니다. Google Play에서 결제를 확인하면 이용 권한이 잠금 해제됩니다.</string>
+</resources>

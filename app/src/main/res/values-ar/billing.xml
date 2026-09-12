@@ -1,0 +1,18 @@
+<resources>
+    <string name="access_lifetime_unlocked">تم فتح الوصول مدى الحياة</string>
+    <string name="access_trial_available">تجربة توافق مجانية: تصدير ملاحظة واحدة</string>
+    <string name="access_trial_used">تم استخدام التجربة المجانية — يلزم فتح مدى الحياة</string>
+    <string name="access_trial_explainer">لا تُستخدم التجربة المجانية إلا بعد حفظ ملف ZIP بنجاح ويحتوي على ملاحظة محوّلة واحدة على الأقل.</string>
+    <string name="lifetime_unlock_title">افتح Notes Escape مدى الحياة</string>
+    <string name="lifetime_unlock_body">شراء لمرة واحدة. افتح تصديراً غير محدود للملفات الفردية والدُفعات والمجلدات على حساب Google Play هذا. بدون اشتراك.</string>
+    <string name="trial_single_note_only">تغطي تجربة التوافق المجانية ملاحظة .sdocx فردية واحدة. اختر ملفاً واحداً لاستخدام التجربة، أو افتح الوصول مدى الحياة لتصدير الدُفعات والمجلدات.</string>
+    <string name="trial_used_explainer">لقد استخدمت التصدير المجاني الناجح. افتح الوصول مدى الحياة لمتابعة التصدير.</string>
+    <string name="unlock_button">فتح مدى الحياة</string>
+    <string name="unlock_button_price">فتح مدى الحياة — %1$s</string>
+    <string name="restore_purchase">استعادة الشراء</string>
+    <string name="not_now">ليس الآن</string>
+    <string name="billing_connecting">جارٍ الاتصال بـ Google Play…</string>
+    <string name="billing_unavailable">الشراء مدى الحياة غير متاح بعد. ثبّت التطبيق أو حدّثه عبر Google Play ثم حاول مرة أخرى.</string>
+    <string name="billing_purchase_failed">تعذّر على Google Play بدء عملية الشراء. حاول مرة أخرى.</string>
+    <string name="purchase_pending">الشراء قيد الانتظار. سيتم فتح الوصول بعد أن يؤكد Google Play الدفع.</string>
+</resources>
