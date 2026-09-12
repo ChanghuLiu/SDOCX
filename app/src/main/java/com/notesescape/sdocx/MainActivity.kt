@@ -31,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +67,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 private enum class UiStage { SELECT, PREFLIGHT, OPTIONS, CONVERTING, RESULT }
+private enum class UnlockReason { BATCH_REQUIRES_UNLOCK, TRIAL_USED }
 
 private data class PreflightSummary(
     val selected: Int = 0,
@@ -109,19 +111,46 @@ private data class ConversionProgress(
 )
 
 class MainActivity : ComponentActivity() {
+    private lateinit var entitlementStore: EntitlementStore
+    private lateinit var billingManager: BillingManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cleanConversionCache(this)
-        setContent { NotesEscapeSDOCXTheme { NotesEscapeApp(intent) } }
+        entitlementStore = EntitlementStore(this)
+        billingManager = BillingManager(this, entitlementStore)
+        billingManager.start()
+        setContent {
+            NotesEscapeSDOCXTheme {
+                NotesEscapeApp(intent, this, billingManager, entitlementStore)
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::billingManager.isInitialized) billingManager.refreshPurchases()
+    }
+
+    override fun onDestroy() {
+        if (::billingManager.isInitialized) billingManager.close()
+        super.onDestroy()
     }
 }
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
-private fun NotesEscapeApp(incoming: Intent) {
+private fun NotesEscapeApp(
+    incoming: Intent,
+    activity: ComponentActivity,
+    billingManager: BillingManager,
+    entitlementStore: EntitlementStore
+) {
     val context = LocalContext.current
     val resources = LocalResources.current
     val scope = rememberCoroutineScope()
+    val entitlement by entitlementStore.state.collectAsState()
+    val billingState by billingManager.state.collectAsState()
     var sources by remember { mutableStateOf(incomingSources(incoming)) }
     var folderImport by remember { mutableStateOf(false) }
     var stage by remember { mutableStateOf(if (sources.isEmpty()) UiStage.SELECT else UiStage.PREFLIGHT) }
@@ -131,6 +160,10 @@ private fun NotesEscapeApp(incoming: Intent) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showAbout by remember { mutableStateOf(false) }
     var showPrivacy by remember { mutableStateOf(false) }
+    var showUnlock by remember { mutableStateOf(false) }
+    var unlockReason by remember { mutableStateOf(UnlockReason.TRIAL_USED) }
+    var billingNoticeRes by remember { mutableStateOf<Int?>(null) }
+    var pendingTrialExport by remember { mutableStateOf(false) }
     var format by remember { mutableStateOf(ExportFormat.PORTABLE_MARKDOWN) }
     var preserve by remember { mutableStateOf(true) }
     var attachments by remember { mutableStateOf(true) }
@@ -193,7 +226,10 @@ private fun NotesEscapeApp(incoming: Intent) {
         }
     }
     val save = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { destination ->
-        if (destination != null) {
+        if (destination == null) {
+            pendingTrialExport = false
+        } else {
+            val trialExport = pendingTrialExport
             activeJob?.cancel()
             stage = UiStage.CONVERTING
             result = ConversionSummary()
@@ -205,43 +241,50 @@ private fun NotesEscapeApp(incoming: Intent) {
                 try {
                     val temporaryArchive = File.createTempFile("notes-escape-", ".zip", conversionCacheDirectory(context))
                     try {
-                    val archive = FileOutputStream(temporaryArchive).use { output ->
-                        val sourceSequence = sequence {
-                            sources.forEach { sourceInfo ->
-                                ensureActive()
-                                val source = CachedSafSource(context.contentResolver, sourceInfo.uri, sourceInfo.displayName, conversionCacheDirectory(context), cancellation::get, sourceInfo.relativeDirectory)
-                                try {
-                                    yield(source)
-                                } finally {
-                                    source.close()
+                        val archive = FileOutputStream(temporaryArchive).use { output ->
+                            val sourceSequence = sequence {
+                                sources.forEach { sourceInfo ->
+                                    ensureActive()
+                                    val source = CachedSafSource(context.contentResolver, sourceInfo.uri, sourceInfo.displayName, conversionCacheDirectory(context), cancellation::get, sourceInfo.relativeDirectory)
+                                    try {
+                                        yield(source)
+                                    } finally {
+                                        source.close()
+                                    }
                                 }
                             }
+                            ArchiveExporter.export(sourceSequence, output, ExportOptions(format, attachments, preserve, originals, metadata)) { index, _, report ->
+                                scope.launch(Dispatchers.Main.immediate) { progress = progress.withReport(report, index, sources.size) }
+                            }
                         }
-                        ArchiveExporter.export(sourceSequence, output, ExportOptions(format, attachments, preserve, originals, metadata)) { index, _, report ->
-                            scope.launch(Dispatchers.Main.immediate) { progress = progress.withReport(report, index, sources.size) }
+                        context.contentResolver.openOutputStream(destination)?.use { output ->
+                            temporaryArchive.inputStream().use { it.copyTo(output) }
+                        } ?: error(resources.getString(R.string.destination_open_error))
+                        temporaryArchive.delete()
+                        val archiveSummary = archive.summary()
+                        if (TrialConsumptionPolicy.shouldConsume(trialExport, outputWritten = true, notesConverted = archiveSummary.notesConverted)) {
+                            entitlementStore.recordSuccessfulTrialExport()
                         }
-                    }
-                    context.contentResolver.openOutputStream(destination)?.use { output ->
-                        temporaryArchive.inputStream().use { it.copyTo(output) }
-                    } ?: error(resources.getString(R.string.destination_open_error))
-                    temporaryArchive.delete()
-                    withContext(Dispatchers.Main) {
-                        result = archive.summary().toUiSummary(format).copy(
-                            savedFile = destination.lastPathSegment ?: resources.getString(R.string.saved_zip_default),
-                            savedUri = destination
-                        )
-                        stage = UiStage.RESULT
-                    }
+                        withContext(Dispatchers.Main) {
+                            pendingTrialExport = false
+                            result = archiveSummary.toUiSummary(format).copy(
+                                savedFile = destination.lastPathSegment ?: resources.getString(R.string.saved_zip_default),
+                                savedUri = destination
+                            )
+                            stage = UiStage.RESULT
+                        }
                     } finally {
                         temporaryArchive.delete()
                     }
                 } catch (_: CancellationException) {
                     withContext(Dispatchers.Main) {
+                        pendingTrialExport = false
                         result = result.copy(cancelled = true)
                         stage = UiStage.RESULT
                     }
                 } catch (error: Exception) {
                     withContext(Dispatchers.Main) {
+                        pendingTrialExport = false
                         errorMessage = resources.getString(R.string.unknown_error)
                         result = progress.summary()
                         stage = UiStage.RESULT
@@ -258,6 +301,7 @@ private fun NotesEscapeApp(incoming: Intent) {
     fun cancel() {
         activeJob?.cancel()
         activeJob = null
+        pendingTrialExport = false
         result = result.copy(cancelled = true)
         stage = UiStage.RESULT
         cleanConversionCache(context)
@@ -265,6 +309,12 @@ private fun NotesEscapeApp(incoming: Intent) {
 
     LaunchedEffect(Unit) {
         if (sources.isNotEmpty()) startPreflight(sources)
+    }
+    LaunchedEffect(entitlement.lifetimeUnlocked) {
+        if (entitlement.lifetimeUnlocked) {
+            showUnlock = false
+            billingNoticeRes = null
+        }
     }
 
     Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) }) { padding ->
@@ -274,6 +324,7 @@ private fun NotesEscapeApp(incoming: Intent) {
                 Text(stringResource(R.string.no_upload_account), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(stringResource(R.string.home_description))
             }
+            item { AccessStatus(entitlement) }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = { showAbout = true }) { Text(stringResource(R.string.about_help)) }
@@ -310,7 +361,37 @@ private fun NotesEscapeApp(incoming: Intent) {
                     item { Option(stringResource(R.string.include_attachments), attachments) { attachments = it } }
                 }
                 item { Option(stringResource(R.string.include_originals), originals) { originals = it } }
-                item { Button(enabled = sources.isNotEmpty(), onClick = { save.launch(resources.getString(if (format.isObsidian) R.string.default_obsidian_zip_filename else R.string.default_markdown_zip_filename)) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save_zip)) } }
+                item {
+                    Button(
+                        enabled = sources.isNotEmpty(),
+                        onClick = {
+                            when (
+                                ExportAccessPolicy.decide(
+                                    lifetimeUnlocked = entitlement.lifetimeUnlocked,
+                                    trialUsed = entitlement.trialUsed,
+                                    sourceCount = sources.size,
+                                    folderImport = folderImport
+                                )
+                            ) {
+                                ExportAccessDecision.ALLOWED -> {
+                                    pendingTrialExport = !entitlement.lifetimeUnlocked && !entitlement.trialUsed
+                                    save.launch(resources.getString(if (format.isObsidian) R.string.default_obsidian_zip_filename else R.string.default_markdown_zip_filename))
+                                }
+                                ExportAccessDecision.SINGLE_NOTE_TRIAL_ONLY -> {
+                                    unlockReason = UnlockReason.BATCH_REQUIRES_UNLOCK
+                                    billingNoticeRes = null
+                                    showUnlock = true
+                                }
+                                ExportAccessDecision.LIFETIME_UNLOCK_REQUIRED -> {
+                                    unlockReason = UnlockReason.TRIAL_USED
+                                    billingNoticeRes = null
+                                    showUnlock = true
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.save_zip)) }
+                }
             }
             if (stage == UiStage.CONVERTING) {
                 item { Text(stringResource(R.string.converting_progress, progress.index, progress.total, progress.current)) }
@@ -347,6 +428,30 @@ private fun NotesEscapeApp(incoming: Intent) {
     if (showPrivacy) {
         PrivacyDialog(onDismiss = { showPrivacy = false })
     }
+    if (showUnlock) {
+        UnlockDialog(
+            reason = unlockReason,
+            billingState = billingState,
+            noticeRes = billingNoticeRes,
+            onUnlock = {
+                billingNoticeRes = when (billingManager.launchLifetimePurchase(activity)) {
+                    PurchaseLaunchResult.LAUNCHED,
+                    PurchaseLaunchResult.ALREADY_UNLOCKED -> null
+                    PurchaseLaunchResult.BILLING_NOT_READY -> R.string.billing_connecting
+                    PurchaseLaunchResult.PRODUCT_UNAVAILABLE -> R.string.billing_unavailable
+                    PurchaseLaunchResult.FAILED -> R.string.billing_purchase_failed
+                }
+            },
+            onRestore = {
+                billingNoticeRes = null
+                billingManager.refreshPurchases()
+            },
+            onDismiss = {
+                billingNoticeRes = null
+                showUnlock = false
+            }
+        )
+    }
 }
 
 private val UiStage.stringRes: Int
@@ -357,6 +462,85 @@ private val UiStage.stringRes: Int
         UiStage.CONVERTING -> R.string.stage_converting
         UiStage.RESULT -> R.string.stage_result
     }
+
+@Composable
+private fun AccessStatus(state: EntitlementState) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        val status = when {
+            state.lifetimeUnlocked -> R.string.access_lifetime_unlocked
+            state.trialUsed -> R.string.access_trial_used
+            else -> R.string.access_trial_available
+        }
+        Text(stringResource(status), style = MaterialTheme.typography.titleMedium)
+        if (!state.lifetimeUnlocked && !state.trialUsed) {
+            Text(
+                stringResource(R.string.access_trial_explainer),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun UnlockDialog(
+    reason: UnlockReason,
+    billingState: BillingUiState,
+    noticeRes: Int?,
+    onUnlock: () -> Unit,
+    onRestore: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.lifetime_unlock_title)) },
+        text = {
+            Column(
+                Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    stringResource(
+                        if (reason == UnlockReason.BATCH_REQUIRES_UNLOCK) {
+                            R.string.trial_single_note_only
+                        } else {
+                            R.string.trial_used_explainer
+                        }
+                    )
+                )
+                Text(stringResource(R.string.lifetime_unlock_body))
+                when {
+                    billingState.pendingPurchase -> Text(stringResource(R.string.purchase_pending))
+                    !billingState.connected -> Text(stringResource(R.string.billing_connecting))
+                    !billingState.purchaseAvailable -> Text(stringResource(R.string.billing_unavailable))
+                }
+                noticeRes?.let {
+                    Text(stringResource(it), color = MaterialTheme.colorScheme.error)
+                }
+                TextButton(onClick = onRestore) {
+                    Text(stringResource(R.string.restore_purchase))
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                enabled = billingState.purchaseAvailable && !billingState.pendingPurchase,
+                onClick = onUnlock
+            ) {
+                val price = billingState.formattedPrice
+                Text(
+                    if (price.isNullOrBlank()) {
+                        stringResource(R.string.unlock_button)
+                    } else {
+                        stringResource(R.string.unlock_button_price, price)
+                    }
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.not_now)) }
+        }
+    )
+}
 
 @Composable private fun FolderStructureInfo(folderImport: Boolean, hasSources: Boolean) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
