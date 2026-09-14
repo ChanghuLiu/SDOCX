@@ -40,7 +40,8 @@ internal class BillingManager(
     private val _state = MutableStateFlow(BillingUiState())
     val state: StateFlow<BillingUiState> = _state.asStateFlow()
 
-    private var started = false
+    private var connectionState = BillingConnectionState.NOT_STARTED
+    private var closed = false
     private var productDetails: ProductDetails? = null
     private var selectedOfferToken: String? = null
 
@@ -55,38 +56,63 @@ internal class BillingManager(
         .build()
 
     fun start() {
+        if (closed) return
         if (billingClient.isReady) {
+            connectionState = BillingConnectionState.READY
             _state.value = _state.value.copy(connected = true)
             refreshProductDetails()
             queryActivePurchases()
             return
         }
-        if (started) return
-        started = true
+
+        if (!BillingConnectionPolicy.shouldStartConnection(connectionState)) {
+            if (BillingConnectionPolicy.canIssueRefreshApiCall(connectionState)) {
+                refreshProductDetails()
+                queryActivePurchases()
+            }
+            return
+        }
+
+        connectionState = BillingConnectionState.CONNECTING
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
+                if (closed) return
+                connectionState = BillingConnectionPolicy.afterSetup(
+                    connectionState,
+                    billingResult.responseCode == BillingClient.BillingResponseCode.OK
+                )
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     _state.value = _state.value.copy(connected = true)
                     refreshProductDetails()
                     queryActivePurchases()
                 } else {
-                    started = false
                     _state.value = BillingUiState()
                 }
             }
 
             override fun onBillingServiceDisconnected() {
-                started = false
+                if (closed) return
+                connectionState = BillingConnectionPolicy.afterDisconnect(connectionState)
                 _state.value = _state.value.copy(connected = false)
             }
         })
     }
 
     fun refreshPurchases() {
+        if (closed) return
         if (!billingClient.isReady) {
-            start()
+            if (BillingConnectionPolicy.shouldStartConnection(connectionState)) {
+                start()
+            } else if (BillingConnectionPolicy.canIssueRefreshApiCall(connectionState)) {
+                // With auto reconnection enabled, an API call while disconnected
+                // allows Billing Library to reconnect without a competing
+                // startConnection() call.
+                queryActivePurchases()
+                refreshProductDetails()
+            }
             return
         }
+        connectionState = BillingConnectionState.READY
         queryActivePurchases()
         refreshProductDetails()
     }
@@ -115,14 +141,17 @@ internal class BillingManager(
     }
 
     fun close() {
-        if (billingClient.isReady) billingClient.endConnection()
-        started = false
+        if (closed) return
+        closed = true
+        connectionState = BillingConnectionState.CLOSED
+        billingClient.endConnection()
     }
 
     override fun onPurchasesUpdated(
         billingResult: BillingResult,
         purchases: List<Purchase>?
     ) {
+        if (closed) return
         when (billingResult.responseCode) {
             BillingClient.BillingResponseCode.OK -> {
                 processPurchases(purchases.orEmpty(), replaceOwnership = false)
@@ -132,7 +161,6 @@ internal class BillingManager(
     }
 
     private fun refreshProductDetails() {
-        if (!billingClient.isReady) return
         val product = QueryProductDetailsParams.Product.newBuilder()
             .setProductId(PRODUCT_LIFETIME_UNLOCK)
             .setProductType(BillingClient.ProductType.INAPP)
@@ -141,6 +169,7 @@ internal class BillingManager(
             .setProductList(listOf(product))
             .build()
         billingClient.queryProductDetailsAsync(params) { billingResult, queryResult ->
+            if (closed) return@queryProductDetailsAsync
             if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
                 productDetails = null
                 selectedOfferToken = null
@@ -166,11 +195,11 @@ internal class BillingManager(
     }
 
     private fun queryActivePurchases() {
-        if (!billingClient.isReady) return
         val params = QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.INAPP)
             .build()
         billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
+            if (closed) return@queryPurchasesAsync
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 processPurchases(purchases, replaceOwnership = true)
             }
