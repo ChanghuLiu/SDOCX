@@ -81,4 +81,86 @@ class BillingConnectionPolicyTest {
             BillingConnectionPolicy.afterDisconnect(BillingConnectionState.CLOSED)
         )
     }
+
+    @Test
+    fun disconnectedRefreshStartsOneSerializedChain() {
+        assertEquals(
+            BillingRefreshDecision.START_SERIAL_REFRESH,
+            BillingConnectionPolicy.refreshDecision(
+                connectionState = BillingConnectionState.DISCONNECTED,
+                refreshInFlight = false,
+                closed = false
+            )
+        )
+    }
+
+    @Test
+    fun secondRefreshWhileInFlightIsCoalesced() {
+        assertEquals(
+            BillingRefreshDecision.COALESCE,
+            BillingConnectionPolicy.refreshDecision(
+                connectionState = BillingConnectionState.DISCONNECTED,
+                refreshInFlight = true,
+                closed = false
+            )
+        )
+    }
+
+    @Test
+    fun connectingRefreshWaitsForSetupWithoutStartingAnotherConnection() {
+        assertEquals(
+            BillingRefreshDecision.DEFER_UNTIL_CONNECTION,
+            BillingConnectionPolicy.refreshDecision(
+                connectionState = BillingConnectionState.CONNECTING,
+                refreshInFlight = false,
+                closed = false
+            )
+        )
+    }
+
+    @Test
+    fun productDetailsBeginsOnlyAfterSuccessfulPurchaseQueryCallback() {
+        assertEquals(
+            BillingRefreshStep.QUERY_PRODUCT_DETAILS,
+            BillingConnectionPolicy.nextAfterPurchaseQuery(succeeded = true)
+        )
+        assertEquals(
+            BillingRefreshStep.IDLE,
+            BillingConnectionPolicy.nextAfterPurchaseQuery(succeeded = false)
+        )
+    }
+
+    @Test
+    fun closedRefreshIsIgnored() {
+        assertEquals(
+            BillingRefreshDecision.IGNORE_CLOSED,
+            BillingConnectionPolicy.refreshDecision(
+                connectionState = BillingConnectionState.CLOSED,
+                refreshInFlight = false,
+                closed = true
+            )
+        )
+    }
+
+    @Test
+    fun failedOwnershipQueryKeepsCachedEntitlement() {
+        assertTrue(
+            BillingOwnershipPolicy.resolveLifetimeUnlocked(
+                querySucceeded = false,
+                cachedLifetimeUnlocked = true,
+                ownedLifetimePurchase = false
+            )
+        )
+    }
+
+    @Test
+    fun successfulEmptyOwnershipQueryRevokesStaleEntitlement() {
+        assertFalse(
+            BillingOwnershipPolicy.resolveLifetimeUnlocked(
+                querySucceeded = true,
+                cachedLifetimeUnlocked = true,
+                ownedLifetimePurchase = false
+            )
+        )
+    }
 }
