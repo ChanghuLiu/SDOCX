@@ -2,6 +2,7 @@ package com.notesescape.sdocx
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -42,6 +43,8 @@ internal class BillingManager(
 
     private var connectionState = BillingConnectionState.NOT_STARTED
     private var closed = false
+    private var refreshInFlight = false
+    private var refreshRequested = false
     private var productDetails: ProductDetails? = null
     private var selectedOfferToken: String? = null
 
@@ -56,36 +59,33 @@ internal class BillingManager(
         .build()
 
     fun start() {
-        if (closed) return
-        if (billingClient.isReady) {
-            connectionState = BillingConnectionState.READY
-            _state.value = _state.value.copy(connected = true)
-            refreshProductDetails()
-            queryActivePurchases()
-            return
-        }
+        refreshBillingState()
+    }
 
-        if (!BillingConnectionPolicy.shouldStartConnection(connectionState)) {
-            if (BillingConnectionPolicy.canIssueRefreshApiCall(connectionState)) {
-                refreshProductDetails()
-                queryActivePurchases()
-            }
-            return
-        }
-
+    private fun startInitialConnection() {
+        if (closed || !BillingConnectionPolicy.shouldStartConnection(connectionState)) return
         connectionState = BillingConnectionState.CONNECTING
+        refreshRequested = true
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (closed) return
+                Log.d(
+                    BILLING_TAG,
+                    "Billing setup responseCode=${billingResult.responseCode} " +
+                        "debugMessage=${billingResult.debugMessage}"
+                )
                 connectionState = BillingConnectionPolicy.afterSetup(
                     connectionState,
                     billingResult.responseCode == BillingClient.BillingResponseCode.OK
                 )
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     _state.value = _state.value.copy(connected = true)
-                    refreshProductDetails()
-                    queryActivePurchases()
+                    if (refreshRequested) {
+                        refreshRequested = false
+                        refreshBillingState()
+                    }
                 } else {
+                    refreshRequested = false
                     _state.value = BillingUiState()
                 }
             }
@@ -99,22 +99,35 @@ internal class BillingManager(
     }
 
     fun refreshPurchases() {
-        if (closed) return
-        if (!billingClient.isReady) {
-            if (BillingConnectionPolicy.shouldStartConnection(connectionState)) {
-                start()
-            } else if (BillingConnectionPolicy.canIssueRefreshApiCall(connectionState)) {
-                // With auto reconnection enabled, an API call while disconnected
-                // allows Billing Library to reconnect without a competing
-                // startConnection() call.
-                queryActivePurchases()
-                refreshProductDetails()
-            }
-            return
+        refreshBillingState()
+    }
+
+    private fun refreshBillingState() {
+        if (billingClient.isReady && !closed) {
+            connectionState = BillingConnectionState.READY
         }
-        connectionState = BillingConnectionState.READY
+        when (
+            BillingConnectionPolicy.refreshDecision(
+                connectionState = connectionState,
+                refreshInFlight = refreshInFlight,
+                closed = closed
+            )
+        ) {
+            BillingRefreshDecision.IGNORE_CLOSED -> Unit
+            BillingRefreshDecision.COALESCE,
+            BillingRefreshDecision.DEFER_UNTIL_CONNECTION -> {
+                refreshRequested = true
+            }
+            BillingRefreshDecision.START_CONNECTION -> startInitialConnection()
+            BillingRefreshDecision.START_SERIAL_REFRESH -> beginSerializedRefresh()
+        }
+    }
+
+    private fun beginSerializedRefresh() {
+        if (closed || refreshInFlight) return
+        refreshInFlight = true
+        refreshRequested = false
         queryActivePurchases()
-        refreshProductDetails()
     }
 
     fun launchLifetimePurchase(activity: Activity): PurchaseLaunchResult {
@@ -156,11 +169,11 @@ internal class BillingManager(
             BillingClient.BillingResponseCode.OK -> {
                 processPurchases(purchases.orEmpty(), replaceOwnership = false)
             }
-            BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> refreshPurchases()
+            BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> refreshBillingState()
         }
     }
 
-    private fun refreshProductDetails() {
+    private fun queryProductDetailsAfterPurchases() {
         val product = QueryProductDetailsParams.Product.newBuilder()
             .setProductId(PRODUCT_LIFETIME_UNLOCK)
             .setProductType(BillingClient.ProductType.INAPP)
@@ -170,6 +183,11 @@ internal class BillingManager(
             .build()
         billingClient.queryProductDetailsAsync(params) { billingResult, queryResult ->
             if (closed) return@queryProductDetailsAsync
+            Log.d(
+                BILLING_TAG,
+                "ProductDetails responseCode=${billingResult.responseCode} " +
+                    "debugMessage=${billingResult.debugMessage}"
+            )
             if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
                 productDetails = null
                 selectedOfferToken = null
@@ -177,6 +195,7 @@ internal class BillingManager(
                     purchaseAvailable = false,
                     formattedPrice = null
                 )
+                finishSerializedRefresh(retryRequested = false)
                 return@queryProductDetailsAsync
             }
 
@@ -186,11 +205,17 @@ internal class BillingManager(
             val offer = details?.oneTimePurchaseOfferDetailsList.orEmpty().firstOrNull()
             productDetails = details
             selectedOfferToken = offer?.offerToken
+            Log.d(
+                BILLING_TAG,
+                "ProductDetails lifetime_unlock found=${details != null} " +
+                    "formattedPrice=${offer?.formattedPrice}"
+            )
             _state.value = _state.value.copy(
                 connected = true,
                 purchaseAvailable = details != null && offer != null,
                 formattedPrice = offer?.formattedPrice
             )
+            finishSerializedRefresh(retryRequested = true)
         }
     }
 
@@ -200,10 +225,36 @@ internal class BillingManager(
             .build()
         billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
             if (closed) return@queryPurchasesAsync
+            Log.d(
+                BILLING_TAG,
+                "queryPurchases responseCode=${billingResult.responseCode} " +
+                    "debugMessage=${billingResult.debugMessage}"
+            )
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 processPurchases(purchases, replaceOwnership = true)
+                when (
+                    BillingConnectionPolicy.nextAfterPurchaseQuery(succeeded = true)
+                ) {
+                    BillingRefreshStep.QUERY_PRODUCT_DETAILS ->
+                        queryProductDetailsAfterPurchases()
+                    BillingRefreshStep.IDLE -> finishSerializedRefresh(retryRequested = true)
+                }
+            } else {
+                finishSerializedRefresh(retryRequested = false)
             }
         }
+    }
+
+    private fun finishSerializedRefresh(retryRequested: Boolean) {
+        if (closed) {
+            refreshInFlight = false
+            refreshRequested = false
+            return
+        }
+        refreshInFlight = false
+        val shouldRefreshAgain = retryRequested && refreshRequested
+        refreshRequested = false
+        if (shouldRefreshAgain) refreshBillingState()
     }
 
     private fun processPurchases(
@@ -219,7 +270,13 @@ internal class BillingManager(
         }
 
         if (replaceOwnership) {
-            entitlementStore.setLifetimeUnlocked(purchased.isNotEmpty())
+            entitlementStore.setLifetimeUnlocked(
+                BillingOwnershipPolicy.resolveLifetimeUnlocked(
+                    querySucceeded = true,
+                    cachedLifetimeUnlocked = entitlementStore.current.lifetimeUnlocked,
+                    ownedLifetimePurchase = purchased.isNotEmpty()
+                )
+            )
         } else if (purchased.isNotEmpty()) {
             entitlementStore.setLifetimeUnlocked(true)
         }
@@ -232,10 +289,17 @@ internal class BillingManager(
         val params = AcknowledgePurchaseParams.newBuilder()
             .setPurchaseToken(purchase.purchaseToken)
             .build()
-        billingClient.acknowledgePurchase(params) { /* Retry on the next refresh if needed. */ }
+        billingClient.acknowledgePurchase(params) { billingResult ->
+            Log.d(
+                BILLING_TAG,
+                "acknowledgePurchase responseCode=${billingResult.responseCode} " +
+                    "debugMessage=${billingResult.debugMessage}"
+            )
+        }
     }
 
     internal companion object {
         const val PRODUCT_LIFETIME_UNLOCK = "lifetime_unlock"
+        private const val BILLING_TAG = "NotesEscapeBilling"
     }
 }
