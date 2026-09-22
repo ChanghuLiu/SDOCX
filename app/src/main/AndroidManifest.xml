@@ -28,12 +28,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/octet-stream" />
                 <data android:mimeType="application/zip" />
+                <data android:mimeType="application/sdoc" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/octet-stream" />
                 <data android:mimeType="application/zip" />
+                <data android:mimeType="application/sdoc" />
             </intent-filter>
         </activity>
     </application>

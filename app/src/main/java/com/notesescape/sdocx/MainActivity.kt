@@ -213,7 +213,9 @@ private fun NotesEscapeApp(
     }
 
     val multiple = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        startPreflight(uris.sortedBy(Uri::toString).map { SafSource(it, displayName(it)) }, fromFolder = false)
+        val selected = uris.sortedBy(Uri::toString).map { SafSource(it, displayName(it)) }
+            .filter { SdocxImportPolicy.acceptsPickerSelection(it.displayName) }
+        startPreflight(selected, fromFolder = false)
     }
     val folder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { tree ->
         if (tree != null) {
@@ -331,7 +333,7 @@ private fun NotesEscapeApp(
                     OutlinedButton(onClick = { showPrivacy = true }) { Text(stringResource(R.string.privacy)) }
                 }
             }
-            item { Button(onClick = { multiple.launch(arrayOf("application/zip", "application/octet-stream")) }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.select_files)) } }
+            item { Button(onClick = { multiple.launch(SdocxImportPolicy.pickerMimeTypes) }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.select_files)) } }
             item { OutlinedButton(onClick = { folder.launch(null) }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.select_folder)) } }
             item { Text(if (folderImport) stringResource(R.string.files_discovered, sources.size) else if (stage == UiStage.PREFLIGHT || sources.isNotEmpty()) pluralStringResource(R.plurals.files_selected_plural, sources.size, sources.size) else stringResource(R.string.empty_state)) }
             item { FolderStructureInfo(folderImport = folderImport, hasSources = sources.isNotEmpty()) }
