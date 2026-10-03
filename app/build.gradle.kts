@@ -8,16 +8,16 @@ plugins {
 
 private val externalSigningFile = project.file(System.getProperty("user.home"))
     .resolve(".config/notes-escape/signing.properties")
-check(externalSigningFile.isFile) {
-    "Release signing requires the secure file at ${externalSigningFile.absolutePath}"
-}
 private val externalSigningProperties = Properties().also { properties ->
-    FileInputStream(externalSigningFile).use { properties.load(it) }
-    val required = listOf("storeFile", "keyAlias", "storePassword", "keyPassword")
-    require(required.all { !properties.getProperty(it).isNullOrBlank() }) {
-        "External release signing configuration is incomplete"
+    if (externalSigningFile.isFile) {
+        FileInputStream(externalSigningFile).use { properties.load(it) }
     }
 }
+private val expectedReleaseKeyAlias = "notes_escape_upload"
+private val requiredReleaseSigningKeys = listOf("storeFile", "keyAlias", "storePassword", "keyPassword")
+private val releaseSigningConfigured =
+    externalSigningFile.isFile &&
+        requiredReleaseSigningKeys.all { !externalSigningProperties.getProperty(it).isNullOrBlank() }
 
 android {
     namespace = "com.notesescape.sdocx"
@@ -38,18 +38,22 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            storeFile = file(externalSigningProperties.getProperty("storeFile"))
-            storePassword = externalSigningProperties.getProperty("storePassword")
-            keyAlias = externalSigningProperties.getProperty("keyAlias")
-            keyPassword = externalSigningProperties.getProperty("keyPassword")
+        if (releaseSigningConfigured) {
+            create("release") {
+                storeFile = file(externalSigningProperties.getProperty("storeFile"))
+                storePassword = externalSigningProperties.getProperty("storePassword")
+                keyAlias = externalSigningProperties.getProperty("keyAlias")
+                keyPassword = externalSigningProperties.getProperty("keyPassword")
+            }
         }
     }
 
     buildTypes {
         release {
             isDebuggable = false
-            signingConfig = signingConfigs.getByName("release")
+            if (releaseSigningConfigured) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             optimization {
                 enable = true
             }
@@ -65,6 +69,29 @@ android {
     buildFeatures {
         compose = true
     }
+}
+
+tasks.register("verifyReleaseSigning") {
+    inputs.property("releaseSigningConfigured", releaseSigningConfigured)
+    inputs.property("releaseKeyAlias", externalSigningProperties.getProperty("keyAlias").orEmpty())
+    inputs.property("expectedReleaseKeyAlias", expectedReleaseKeyAlias)
+    inputs.property("signingFilePath", externalSigningFile.absolutePath)
+    doLast {
+        val configured = inputs.properties["releaseSigningConfigured"] as Boolean
+        val alias = inputs.properties["releaseKeyAlias"] as String
+        val expectedAlias = inputs.properties["expectedReleaseKeyAlias"] as String
+        val signingFilePath = inputs.properties["signingFilePath"] as String
+        check(configured) {
+            "Notes Escape release signing requires a complete secure file at $signingFilePath"
+        }
+        check(alias == expectedAlias) {
+            "Notes Escape release signing alias must be $expectedAlias, found $alias"
+        }
+    }
+}
+
+tasks.matching { it.name == "preReleaseBuild" }.configureEach {
+    dependsOn("verifyReleaseSigning")
 }
 
 dependencies {
