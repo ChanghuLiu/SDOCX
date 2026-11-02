@@ -9,10 +9,8 @@ import org.junit.Test
 
 class SdocxImportPolicyTest {
     @Test
-    fun pickerIncludesSamsungNotesMimeAndLegacyTypes() {
-        assertTrue(SdocxImportPolicy.pickerMimeTypes.contains("application/sdoc"))
-        assertTrue(SdocxImportPolicy.pickerMimeTypes.contains("application/zip"))
-        assertTrue(SdocxImportPolicy.pickerMimeTypes.contains("application/octet-stream"))
+    fun pickerAllowsProvidersWithUnknownMimeTypes() {
+        org.junit.Assert.assertArrayEquals(arrayOf("*/*"), SdocxImportPolicy.pickerMimeTypes)
     }
 
     @Test
