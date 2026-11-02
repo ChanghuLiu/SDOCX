@@ -31,8 +31,8 @@ android {
         applicationId = "com.notesescape.sdocx"
         minSdk = 27
         targetSdk = 36
-        versionCode = 14
-        versionName = "1.2.7"
+        versionCode = 15
+        versionName = "1.2.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
