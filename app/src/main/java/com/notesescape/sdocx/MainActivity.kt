@@ -1,5 +1,6 @@
 package com.notesescape.sdocx
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -213,7 +214,7 @@ private fun NotesEscapeApp(
     }
 
     val multiple = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        val selected = uris.sortedBy(Uri::toString).map { SafSource(it, displayName(it)) }
+        val selected = uris.sortedBy(Uri::toString).map { SafSource(it, pickerDisplayName(context, it)) }
             .filter { SdocxImportPolicy.acceptsPickerSelection(it.displayName) }
         startPreflight(selected, fromFolder = false)
     }
@@ -411,9 +412,9 @@ private fun NotesEscapeApp(
                                 setDataAndType(output, "application/zip")
                                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             }
-                            if (intent.resolveActivity(context.packageManager) != null) {
+                            try {
                                 context.startActivity(intent)
-                            } else {
+                            } catch (_: ActivityNotFoundException) {
                                 errorMessage = resources.getString(R.string.no_output_app)
                             }
                         }
@@ -734,3 +735,9 @@ private fun incomingSources(intent: Intent): List<SafSource> {
     val uris = if (shared.isNotEmpty()) shared else listOfNotNull(intent.data, single)
     return uris.filter { shared.isNotEmpty() || it.toString().contains(".sdocx", ignoreCase = true) }.distinctBy(Uri::toString).sortedBy(Uri::toString).map { SafSource(it, displayName(it)) }
 }
+
+private fun pickerDisplayName(context: Context, uri: Uri): String = runCatching {
+    context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) cursor.getString(0) else null
+    }
+}.getOrNull()?.takeIf { it.isNotBlank() } ?: displayName(uri)

@@ -5,11 +5,8 @@ import com.notesescape.sdocx.core.SourceNameRules
 internal object SdocxImportPolicy {
     const val samsungNotesMimeType = "application/sdoc"
 
-    val pickerMimeTypes = arrayOf(
-        "application/zip",
-        "application/octet-stream",
-        samsungNotesMimeType
-    )
+    // Providers disagree on SDOCX MIME types; validate the returned filename instead.
+    val pickerMimeTypes = arrayOf("*/*")
 
     fun acceptsPickerSelection(displayName: String?): Boolean = SourceNameRules.isSdocx(displayName)
 }
