@@ -4,6 +4,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services") version "4.6.0" apply false
 }
 
 private val externalSigningFile = project.file(System.getProperty("user.home"))
@@ -67,7 +68,13 @@ android {
     }
 }
 
+if (file("google-services.json").isFile) {
+    pluginManager.apply("com.google.gms.google-services")
+}
+
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:35.2.0"))
+    implementation("com.google.firebase:firebase-analytics")
     implementation(project(":sdocx-core"))
     implementation(project(":export-core"))
     implementation("com.android.billingclient:billing:9.1.0")

@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.notesescape.sdocx.AppAnalytics
 import com.notesescape.sdocx.core.HandwritingElement
 import com.notesescape.sdocx.core.ImageElement
 import com.notesescape.sdocx.core.ParseResult
@@ -116,6 +117,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AppAnalytics.log(this, "app_opened")
         cleanConversionCache(this)
         entitlementStore = EntitlementStore(this)
         billingManager = BillingManager(this, entitlementStore)
@@ -154,6 +156,9 @@ private fun NotesEscapeApp(
     var sources by remember { mutableStateOf(incomingSources(incoming)) }
     var folderImport by remember { mutableStateOf(false) }
     var stage by remember { mutableStateOf(if (sources.isEmpty()) UiStage.SELECT else UiStage.PREFLIGHT) }
+    LaunchedEffect(stage) {
+        AppAnalytics.log(context, "workflow_stage", "stage", stage.name.lowercase())
+    }
     var preflight by remember { mutableStateOf(PreflightSummary(sources.size)) }
     var progress by remember { mutableStateOf(ConversionProgress(total = sources.size)) }
     var result by remember { mutableStateOf(ConversionSummary()) }
@@ -213,9 +218,11 @@ private fun NotesEscapeApp(
     }
 
     val multiple = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        AppAnalytics.log(context, "source_selection", "selection", when { uris.isEmpty() -> "empty"; uris.size == 1 -> "one"; else -> "multiple" })
         startPreflight(uris.sortedBy(Uri::toString).map { SafSource(it, displayName(it)) }, fromFolder = false)
     }
     val folder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { tree ->
+        AppAnalytics.log(context, "folder_selection", "selection", if (tree == null) "cancelled" else "selected")
         if (tree != null) {
             activeJob?.cancel()
             stage = UiStage.PREFLIGHT
@@ -227,8 +234,10 @@ private fun NotesEscapeApp(
     }
     val save = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { destination ->
         if (destination == null) {
+            AppAnalytics.log(context, "output_destination", "result", "cancelled")
             pendingTrialExport = false
         } else {
+            AppAnalytics.log(context, "conversion_started")
             val trialExport = pendingTrialExport
             activeJob?.cancel()
             stage = UiStage.CONVERTING
@@ -272,18 +281,21 @@ private fun NotesEscapeApp(
                                 savedUri = destination
                             )
                             stage = UiStage.RESULT
+                            AppAnalytics.log(context, "conversion_finished", "outcome", "success")
                         }
                     } finally {
                         temporaryArchive.delete()
                     }
                 } catch (_: CancellationException) {
                     withContext(Dispatchers.Main) {
+                        AppAnalytics.log(context, "conversion_finished", "outcome", "cancelled")
                         pendingTrialExport = false
                         result = result.copy(cancelled = true)
                         stage = UiStage.RESULT
                     }
                 } catch (error: Exception) {
                     withContext(Dispatchers.Main) {
+                        AppAnalytics.log(context, "conversion_finished", "outcome", "failed")
                         pendingTrialExport = false
                         errorMessage = resources.getString(R.string.unknown_error)
                         result = progress.summary()
@@ -299,6 +311,7 @@ private fun NotesEscapeApp(
     }
 
     fun cancel() {
+        AppAnalytics.log(context, "conversion_cancelled")
         activeJob?.cancel()
         activeJob = null
         pendingTrialExport = false
@@ -375,6 +388,7 @@ private fun NotesEscapeApp(
                             ) {
                                 ExportAccessDecision.ALLOWED -> {
                                     pendingTrialExport = !entitlement.lifetimeUnlocked && !entitlement.trialUsed
+                                    AppAnalytics.log(context, "conversion_save_requested")
                                     save.launch(resources.getString(if (format.isObsidian) R.string.default_obsidian_zip_filename else R.string.default_markdown_zip_filename))
                                 }
                                 ExportAccessDecision.SINGLE_NOTE_TRIAL_ONLY -> {
